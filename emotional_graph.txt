@@ -1,0 +1,17 @@
+happy playful
+playful happy
+happy thoughtful
+thoughtful happy
+thoughtful sad
+
+happy motivated
+thoughtful motivated
+motivated happy
+
+motivated satisfied 
+satisfied happy
+
+neutral happy
+happy neutral
+neutral sad
+sad neutral

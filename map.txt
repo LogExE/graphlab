@@ -1,0 +1,11 @@
+kaliningrad
+
+saratov volgograd 4000
+saratov voronezh 5130
+saratov tolyatti 4500
+tolyatti samara 850
+
+chelyabinsk yekaterinburg 3000
+yekaterinburg tumen 3400
+tumen omsk 4123
+omsk chelyabinsk 5000
