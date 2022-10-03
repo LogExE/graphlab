@@ -65,9 +65,12 @@ class Graph():
     def save(self, path):
         with open(path, 'w') as f:
             for v in self.vertices:
-                for u in self.vertices[v]:
-                    price = self.prices.get((v, u))
-                    if price is None:
-                        f.write(f"{v} {u}\n")
-                    else:
-                        f.write(f"{v} {u} {price}\n")
+                if len(self.vertices[v]) == 0:
+                    f.write(f"{v}\n")
+                else:
+                    for u in self.vertices[v]:
+                        price = self.prices.get((v, u))
+                        if price is None:
+                            f.write(f"{v} {u}\n")
+                        else:
+                            f.write(f"{v} {u} {price}\n")

@@ -44,6 +44,8 @@ current = "default"
 
 commands()
 
+# TODO: ограничить аттрибуты
+
 while True:
     line = None
     try:
