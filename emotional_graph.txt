@@ -1,3 +1,4 @@
+directed not_weighted
 happy playful
 playful happy
 happy thoughtful

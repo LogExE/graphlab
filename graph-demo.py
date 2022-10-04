@@ -1,6 +1,6 @@
 
-import graph
 import os
+from graph import Graph, GraphOperationException, GraphFormatException
 
 def clear():
     if os.name == 'nt':
@@ -21,6 +21,7 @@ cmds = {
     "load": ["in_file"],
     "save": [],
     "copy": [],
+    "create": ["attrib1", "attrib2", "name"],
     "switch": ["to_name"],
     "rename": ["new_name"],
     "delete": [],
@@ -39,12 +40,10 @@ def commands():
     for cmd in cmds:
         print(cmd, *cmds[cmd])
 
-graphs = {"default": graph.Graph()}
+graphs = {"default": Graph()}
 current = "default"
 
 commands()
-
-# TODO: ограничить аттрибуты
 
 while True:
     line = None
@@ -58,46 +57,55 @@ while True:
     if len(line) == 0:
         continue
     cmd, *args = line
+    # Checking if we know the command
     if cmd not in cmds:
         print("Uknown command!")
         continue
+    # Checking count of arguments
     if not test_args(cmd, args):
         print(f"Wrong usage of command \"{cmd}\"!")
         continue
-    
-    # We've got some input, time to process it!
+
     gr = graphs[current]
     if cmd == "clear":
         clear()
     elif cmd == "cmds":
         commands()
     elif cmd == "print":
+        print("Attributes:")
+        print(" ".join(gr.attributes))
         print("Connections:")
         print("\n".join(map(str, gr.vertices.items())))
-        print("Prices:")
-        print("\n".join(map(str, gr.prices.items())))
     elif cmd == "add_vertex":
-        if not gr.add_vertex(*args):
-            print("Vertex does already exist!")
+        try:
+            gr.add_vertex(*args)
+        except GraphOperationException as e:
+            print(e)    
     elif cmd == "remove_vertex":
-        if not gr.remove_vertex(*args):
-            print("No such vertex!")
+        try:
+            gr.remove_vertex(*args)
+        except GraphOperationException as e:
+            print(e)
     elif cmd == "add_edge":
-        if not gr.add_edge(*args):
-            print("That edge does already exist!")
+        try:
+            gr.add_edge(*args)
+        except GraphOperationException as e:
+            print(e)
     elif cmd == "remove_edge":
-        if not gr.remove_edge(*args):
-            print("No such edge!")
+        try:
+            gr.remove_edge(*args)
+        except GraphOperationException as e:
+            print(e)
     elif cmd == "load":
-        path = args[0]
+        [path] = args
         name = os.path.splitext(path)[0]
         try:
-            graphs[name] = graph.Graph(path)
+            graphs[name] = Graph(path)
             print("Loaded", name)
         except FileNotFoundError:
             print("No such file!")
-        except graph.GraphFormatException:
-            print("File is invalid!")
+        except GraphFormatException as e:
+            print("File is invalid:", e)
     elif cmd == "save":
         name = current + ".txt"
         gr.save(name)
@@ -108,16 +116,25 @@ while True:
         while pref + str(n) in graphs:
             n += 1
         name = pref + str(n)
-        graphs[name] = graph.Graph(gr)
+        graphs[name] = Graph(gr)
         print(f"Copied: \"{name}\"")
+    elif cmd == "create":
+        *attribs, name = args
+        if name in graphs:
+            print("Name already presents in list!")
+        else:
+            try:
+                graphs[name] = Graph(attribs)
+            except GraphFormatException as e:
+                print(e)
     elif cmd == "switch":
-        to_name = args[0]
+        [to_name] = args
         if to_name in graphs:
             current = to_name
         else:
             print("No such graph!")
     elif cmd == "rename":
-        new_name = args[0]
+        [new_name] = args
         if current == "default":
             print("Cannot rename default graph!")
         elif new_name in graphs:

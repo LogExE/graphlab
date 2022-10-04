@@ -1,3 +1,5 @@
+directed not_weighted
+
 porridge tea
 sandwich yoghurt
 yoghurt tea
