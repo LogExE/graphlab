@@ -56,7 +56,7 @@ class Graph():
         elif isinstance(arg, str):
             self.load(arg)
         elif isinstance(arg, Graph):
-            self.attributes = arg.attributes
+            self.attributes = copy.deepcopy(arg.attributes)
             self.vertices = copy.deepcopy(arg.vertices)
         elif isinstance(arg, Iterable):
             self.set_attribs(arg)
