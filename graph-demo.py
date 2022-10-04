@@ -9,7 +9,8 @@ def clear():
     elif os.name == 'posix':
         os.system('clear')
     else:
-        print('\n' * 100)
+        print(("Dunno how to clear "
+               "on your platform :("))
 
 cmds = {
     "clear": [],
@@ -166,6 +167,6 @@ while True:
             del graphs[current]
             current = "default"
     elif cmd == "get_graphs":
-        print("There is: " + " ".join(graphs.keys()))
+        print("There is: " + "; ".join(graphs.keys()))
     elif cmd == "exit":
         break

@@ -70,10 +70,10 @@ class Graph():
 
     def remove_vertex(self, x):
         if x in self.vertices:
-            del self.vertices[x]
             for v in self.vertices:
                 if v != x and x in self.vertices[v]:
                     self.remove_edge(v, x)
+            del self.vertices[x]
         else:
             raise GraphOperationException("Tried to delete nonexistant vertex!")        
             
