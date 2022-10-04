@@ -91,7 +91,7 @@ class Graph():
         if y not in self.vertices[x]:
             self.vertices[x][y] = price
             if "not_directed" in self.attributes:
-                self.vertex[y][x] = price
+                self.vertices[y][x] = price
         else:
             raise GraphOperationException("Tried to add an existing edge!")
 

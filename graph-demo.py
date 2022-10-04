@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import os
 from graph import Graph, GraphOperationException, GraphFormatException
@@ -74,8 +75,16 @@ while True:
     elif cmd == "print":
         print("Attributes:")
         print(" ".join(gr.attributes))
+        print("Vertices:")
+        for v in gr.vertices:
+            print(v)
         print("Connections:")
-        print("\n".join(map(str, gr.vertices.items())))
+        for x in gr.vertices:
+            for y, price in gr.vertices[x].items():
+                if price is not None:
+                    print(f"{x} -> {y}: {price}")
+                else:
+                    print(f"{x} -> {y}")
     elif cmd == "add_vertex":
         try:
             gr.add_vertex(*args)
