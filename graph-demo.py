@@ -26,8 +26,7 @@ cmds = {
     "switch": ["to_name"],
     "rename": ["new_name"],
     "delete": [],
-    "get_names": [],
-    "get_current": [],
+    "get_graphs": [],
     "exit": []
 }
 
@@ -73,18 +72,26 @@ while True:
     elif cmd == "cmds":
         commands()
     elif cmd == "print":
+        print(f"Graph \"{current}\"")
         print("Attributes:")
-        print(" ".join(gr.attributes))
+        print("; ".join(gr.attributes))
         print("Vertices:")
         for v in gr.vertices:
             print(v)
         print("Connections:")
+        printed = set()
         for x in gr.vertices:
             for y, price in gr.vertices[x].items():
-                if price is not None:
-                    print(f"{x} -> {y}: {price}")
+                if "not_weighted" in gr.attributes and (y, x) in printed:
+                    continue
+                if "not_directed" in gr.attributes:
+                    msg = f"{x} <-> {y}"
                 else:
-                    print(f"{x} -> {y}")
+                    msg = f"{x} -> {y}"
+                if "weighted" in gr.attributes:
+                    msg += f": {price}"
+                print(msg)
+                printed.add((x, y))
     elif cmd == "add_vertex":
         try:
             gr.add_vertex(*args)
@@ -158,9 +165,7 @@ while True:
         else:
             del graphs[current]
             current = "default"
-    elif cmd == "get_names":
+    elif cmd == "get_graphs":
         print("There is: " + " ".join(graphs.keys()))
-    elif cmd == "get_current":
-        print(f"Current graph: \"{current}\"")
     elif cmd == "exit":
         break

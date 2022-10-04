@@ -107,8 +107,11 @@ class Graph():
     def save(self, path):
         isolated = set(self.vertices.keys())
         buff = []
+        appended = set()
         for v in self.vertices:
             for u in self.vertices[v]:
+                if "not_weighted" in self.attributes and (u, v) in appended:
+                    continue
                 isolated.discard(v)
                 isolated.discard(u)
                 price = self.vertices[v][u]
@@ -116,6 +119,7 @@ class Graph():
                     buff.append(f"{v} {u}")
                 else:
                     buff.append(f"{v} {u} {price}")
+                appended.add((v, u))
         with open(path, 'w') as f:
             f.write(" ".join(self.attributes) + "\n")
             f.write("\n".join(isolated) + "\n")
