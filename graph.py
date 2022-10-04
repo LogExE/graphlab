@@ -20,6 +20,8 @@ class Graph():
                    "directed", "not_directed")
 
     def set_attribs(self, attribs):
+        if len(self.attributes) != 0:
+            raise GraphException("Tried to override attributes!")
         if len(attribs) != 2:
             raise GraphFormatException(("Number of graph attributes "
                                         "were other than 2!"))
@@ -51,6 +53,7 @@ class Graph():
 
     def __init__(self, arg=None):
         self.vertices = {}
+        self.attributes = set()
         if arg is None:
             self.attributes = {"weighted", "directed"}
         elif isinstance(arg, str):
@@ -63,7 +66,8 @@ class Graph():
         else:
             raise GraphException(("Constructor accepts either "
                                   "nothing (None), path to file "
-                                  "or another graph!"))
+                                  ", another graph or "
+                                  "iterable with attributes!"))
 
     def add_vertex(self, x):
         if x not in self.vertices:
