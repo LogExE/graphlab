@@ -2,14 +2,18 @@
 from collections.abc import Iterable
 import copy
 
+
 class GraphException(Exception):
     pass
+
 
 class GraphFormatException(GraphException):
     pass
 
+
 class GraphOperationException(GraphException):
     pass
+
 
 class Graph():
     attrib_list = ("weighted", "not_weighted",
@@ -18,19 +22,18 @@ class Graph():
     def set_attribs(self, attribs):
         if len(attribs) != 2:
             raise GraphFormatException(("Number of graph attributes "
-                                            "were other than 2!"))
-            
+                                        "were other than 2!"))
+
         if attribs[0] not in Graph.attrib_list or \
            attribs[1] not in Graph.attrib_list:
             raise GraphFormatException(("One of attributes "
-                                    "can't be recognized!"))
-                
+                                        "can't be recognized!"))
+
         if attribs[0] == attribs[1]:
             raise GraphFormatException("Attributes were the same!")
-            
+
         self.attributes = set(attribs)
 
-    
     def load(self, name):
         with open(name) as f:
             self.set_attribs(f.readline().split())
@@ -45,8 +48,8 @@ class Graph():
                 else:
                     raise GraphFormatException(("Format of line "
                                                 f"{i} is incorrect!"))
-    
-    def __init__(self, arg = None):
+
+    def __init__(self, arg=None):
         self.vertices = {}
         if arg is None:
             self.attributes = {"weighted", "directed"}
@@ -64,7 +67,7 @@ class Graph():
 
     def add_vertex(self, x):
         if x not in self.vertices:
-             self.vertices[x] = {}
+            self.vertices[x] = {}
         else:
             raise GraphOperationException("Tried to add existing vertex!")
 
@@ -75,9 +78,10 @@ class Graph():
                     self.remove_edge(v, x)
             del self.vertices[x]
         else:
-            raise GraphOperationException("Tried to delete nonexistant vertex!")        
-            
-    def add_edge(self, x, y, price = None):
+            raise GraphOperationException(
+                "Tried to delete nonexistant vertex!")
+
+    def add_edge(self, x, y, price=None):
         if price is None and "weighted" in self.attributes or \
            price is not None and "not_weighted" in self.attributes:
             raise GraphOperationException(("Tried to insert edge "
@@ -103,7 +107,7 @@ class Graph():
                     del self.vertices[y][x]
         else:
             raise GraphException("Tried to remove nonexistant edge!")
-    
+
     def save(self, path):
         isolated = set(self.vertices.keys())
         buff = []

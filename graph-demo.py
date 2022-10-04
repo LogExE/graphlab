@@ -3,19 +3,21 @@
 import os
 from graph import Graph, GraphOperationException, GraphFormatException
 
+
 def clear():
     if os.name == 'nt':
-         os.system('cls')
+        os.system('cls')
     elif os.name == 'posix':
         os.system('clear')
     else:
         print(("Dunno how to clear "
                "on your platform :("))
 
+
 cmds = {
     "clear": [],
     "cmds": [],
-    "print": [],    
+    "print": [],
     "add_vertex": ["v"],
     "add_edge": ["v1", "v2", "?price"],
     "remove_vertex": ["v"],
@@ -31,15 +33,18 @@ cmds = {
     "exit": []
 }
 
+
 def test_args(cmd, args):
     cnt = len(cmds[cmd])
     opt = sum(1 for x in cmds[cmd] if x[0] == '?')
     return cnt - opt <= len(args) <= cnt
 
+
 def commands():
     print("Commands:")
     for cmd in cmds:
         print(cmd, *cmds[cmd])
+
 
 graphs = {"default": Graph()}
 current = "default"
@@ -53,7 +58,7 @@ while True:
     except EOFError:
         line = "exit"
         print(line)
-        
+
     line = line.split()
     if len(line) == 0:
         continue
@@ -97,7 +102,7 @@ while True:
         try:
             gr.add_vertex(*args)
         except GraphOperationException as e:
-            print(e)    
+            print(e)
     elif cmd == "remove_vertex":
         try:
             gr.remove_vertex(*args)
