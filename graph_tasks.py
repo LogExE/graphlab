@@ -1,10 +1,8 @@
 
 from graph import GraphException
 
-def task1(gr, v):
-    '''The task is to print
-       vertices with outcome degree
-       larger than given vertex has'''
+def task1(gr, vertex):
+    """list vertices with outcome degree larger than given vertex has"""
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
     

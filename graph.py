@@ -7,34 +7,31 @@ class GraphException(Exception):
     pass
 
 
-class GraphFormatException(GraphException):
-    pass
-
-
 class GraphOperationException(GraphException):
     pass
 
 
 class Graph():
-    attrib_list = ("weighted", "not_weighted",
-                   "directed", "not_directed")
-
     def __set_attribs(self, attribs):
         if len(self.__attributes) != 0:
             raise GraphException("Tried to override attributes!")
-        if len(attribs) != 2:
-            raise GraphFormatException(("Number of graph attributes "
-                                        "were other than 2!"))
-
-        if attribs[0] not in Graph.attrib_list or \
-           attribs[1] not in Graph.attrib_list:
-            raise GraphFormatException(("One of attributes "
-                                        "can't be recognized!"))
-
-        if attribs[0] == attribs[1]:
-            raise GraphFormatException("Attributes were the same!")
-
-        self.__attributes = set(attribs)
+        for atr in attribs:
+            if atr in ("weighted", "not_weighted") and \
+               "weighted" in self.__attributes or \
+               atr in ("directed", "not_directed") and \
+               "directed" in self.__attributes:
+                raise GraphException("One of attributes repeated!")
+            
+            if atr == "weighted":
+                self.__attributes["weighted"] = True
+            elif atr == "not_weighted":
+                self.__attributes["weighted"] = False
+            elif atr == "directed":
+                self.__attributes["directed"] = True
+            elif atr == "not_directed":
+                self.__attributes["directed"] = False
+            else:
+                raise GraphException("One of atttributes was unrecognized: " + atr)
 
     def load(self, name):
         with open(name) as f:
@@ -48,14 +45,14 @@ class Graph():
                 elif len(a) in [2, 3]:
                     self.add_edge(*a)
                 else:
-                    raise GraphFormatException(("Format of line "
-                                                f"{i} is incorrect!"))
+                    raise GraphException(("Format of line "
+                                          f"{i} is incorrect!"))
 
     def __init__(self, arg=None):
         self.__vertices = {}
-        self.__attributes = set()
+        self.__attributes = {}
         if arg is None:
-            self.__attributes = {"weighted", "directed"}
+            self.__set_attribs(("directed", "weighted"))
         elif isinstance(arg, str):
             self.load(arg)
         elif isinstance(arg, Graph):
@@ -70,10 +67,10 @@ class Graph():
                                   "iterable with attributes!"))
 
     def is_weighted(self):
-        return "weighted" in self.__attributes
+        return self.__attributes["weighted"]
 
     def is_directed(self):
-        return "directed" in self.__attributes
+        return self.__attributes["directed"]
 
     def get_vertices(self):
         return self.__vertices.keys()
@@ -101,8 +98,7 @@ class Graph():
         del self.__vertices[x]
 
     def add_edge(self, x, y, price=None):
-        if price is None and "weighted" in self.__attributes or \
-           price is not None and "not_weighted" in self.__attributes:
+        if (price is not None) != (self.is_weighted()):
             raise GraphOperationException(("Tried to insert edge "
                                            f"with price {price}, "
                                            "which is unallowed!"))
@@ -115,7 +111,7 @@ class Graph():
             raise GraphOperationException("Tried to add an existing edge!")
         
         self.__vertices[x][y] = price
-        if "not_directed" in self.__attributes:
+        if not self.is_directed():
             self.__vertices[y][x] = price
 
     def remove_edge(self, x, y):

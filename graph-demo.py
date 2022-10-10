@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import os
-from graph import Graph, GraphException, \
-    GraphOperationException, GraphFormatException
+from graph import Graph, GraphException, GraphOperationException
 from graph_tasks import task1
 
 tasks = [task1]
@@ -130,14 +129,13 @@ while True:
         except GraphOperationException as e:
             print(e)
     elif cmd == "load":
-        [path] = args
-        name = os.path.splitext(path)[0]
+        [name] = args
         try:
-            graphs[name] = Graph(path)
+            graphs[name] = Graph(name + ".txt")
             print("Loaded", name)
         except FileNotFoundError:
             print("No such file!")
-        except GraphFormatException as e:
+        except GraphException as e:
             print("File is invalid:", e)
     elif cmd == "save":
         name = current + ".txt"
@@ -158,7 +156,7 @@ while True:
         else:
             try:
                 graphs[name] = Graph(attribs)
-            except GraphFormatException as e:
+            except GraphException as e:
                 print(e)
     elif cmd == "switch":
         [to_name] = args
@@ -185,18 +183,21 @@ while True:
     elif cmd == "get_graphs":
         print("There is: " + "; ".join(graphs.keys()))
     elif cmd == "get_tasks":
-        for task in tasks:
-            print(task.__name__)
-            print(task.__doc__)
+        for i, task in enumerate(tasks, 1):
+            print(f"Task {i}:", task.__doc__)
     elif cmd == "solve":
         [task_number] = args
-        task = tasks[int(task_number)]
-        print("Please, provide:")
+        task = tasks[int(task_number) - 1]
         argc = task.__code__.co_argcount
+        print("Please, provide:")
         print("\n".join(task.__code__.co_varnames[1:argc]))
-        more_args = input().split()
+        try:
+            more_args = input().split()
+        except EOFError:
+            print("No input... No answer!!!")
+            continue
         if len(more_args) != argc - 1:
-            print("Bruh!")
+            print("Invalid arguments!")
             continue
         try:
             print(task(gr, *more_args))
