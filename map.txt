@@ -1,4 +1,4 @@
-directed weighted
+not_directed weighted
 kaliningrad
 
 saratov volgograd 4000

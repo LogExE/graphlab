@@ -88,8 +88,9 @@ while True:
         printed = set()
         for x in gr.vertices:
             for y, price in gr.vertices[x].items():
-                if "not_weighted" in gr.attributes and (y, x) in printed:
+                if "not_directed" in gr.attributes and (y, x) in printed:
                     continue
+                msg = None
                 if "not_directed" in gr.attributes:
                     msg = f"{x} <-> {y}"
                 else:
