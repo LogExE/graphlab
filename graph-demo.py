@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 import os
-from graph import Graph, GraphOperationException, GraphFormatException
+from graph import Graph, GraphException, \
+    GraphOperationException, GraphFormatException
+from graph_tasks import task1
 
+tasks = [task1]
 
 def clear():
     if os.name == 'nt':
@@ -30,6 +33,8 @@ cmds = {
     "rename": ["new_name"],
     "delete": [],
     "get_graphs": [],
+    "get_tasks": [],
+    "solve": ["task_num"],
     "exit": []
 }
 
@@ -78,25 +83,30 @@ while True:
     elif cmd == "cmds":
         commands()
     elif cmd == "print":
+        verts = gr.get_vertices()
+        
         print(f"Graph \"{current}\"")
-        print("Attributes:")
-        print("; ".join(gr.attributes))
+        print("Is{} directed".format("" if gr.is_directed() else " not"))
+        print("Is{} weighted".format("" if gr.is_weighted() else " not"))
+        
         print("Vertices:")
-        for v in gr.vertices:
+        for v in verts:
             print(v)
+            
         print("Connections:")
         printed = set()
-        for x in gr.vertices:
-            for y, price in gr.vertices[x].items():
-                if "not_directed" in gr.attributes and (y, x) in printed:
+        for x in verts:
+            adj = gr.get_adjacent(x)
+            for y in adj:
+                if not gr.is_directed() and (y, x) in printed:
                     continue
                 msg = None
-                if "not_directed" in gr.attributes:
-                    msg = f"{x} <-> {y}"
-                else:
+                if gr.is_directed():
                     msg = f"{x} -> {y}"
-                if "weighted" in gr.attributes:
-                    msg += f": {price}"
+                else:
+                    msg = f"{x} <-> {y}"
+                if gr.is_weighted():
+                    msg += f": {adj[y]}"
                 print(msg)
                 printed.add((x, y))
     elif cmd == "add_vertex":
@@ -174,5 +184,23 @@ while True:
             current = "default"
     elif cmd == "get_graphs":
         print("There is: " + "; ".join(graphs.keys()))
+    elif cmd == "get_tasks":
+        for task in tasks:
+            print(task.__name__)
+            print(task.__doc__)
+    elif cmd == "solve":
+        [task_number] = args
+        task = tasks[int(task_number)]
+        print("Please, provide:")
+        argc = task.__code__.co_argcount
+        print("\n".join(task.__code__.co_varnames[1:argc]))
+        more_args = input().split()
+        if len(more_args) != argc - 1:
+            print("Bruh!")
+            continue
+        try:
+            print(task(gr, *more_args))
+        except GraphException as e:
+            print(e)
     elif cmd == "exit":
         break
