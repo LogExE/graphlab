@@ -73,13 +73,16 @@ class Graph():
         return self.__attributes["directed"]
 
     def get_vertices(self):
-        return self.__vertices.keys()
+        return set(self.__vertices.keys())
         
     def get_adjacent(self, v):
         if v not in self.__vertices:
             raise GraphException("No such vertex!")
 
         return copy.deepcopy(self.__vertices[v])
+
+    def get_full(self):
+        return copy.deepcopy(self.__vertices)
 
     def add_vertex(self, x):
         if x in self.__vertices:

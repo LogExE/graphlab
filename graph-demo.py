@@ -2,9 +2,9 @@
 
 import os
 from graph import Graph, GraphException, GraphOperationException
-from graph_tasks import task1
+from graph_tasks import task1, task2, task3
 
-tasks = [task1]
+tasks = (task1, task2, task3)
 
 def clear():
     if os.name == 'nt':
@@ -200,7 +200,11 @@ while True:
             print("Invalid arguments!")
             continue
         try:
-            print(task(gr, *more_args))
+            res = task(gr, *more_args)
+            if isinstance(res, Graph):
+                graphs[f"task{task_number}"] = res
+            else:
+                print(res)
         except GraphException as e:
             print(e)
     elif cmd == "exit":
