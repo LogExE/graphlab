@@ -72,6 +72,10 @@ class Graph():
     def is_directed(self):
         return self.__attributes["directed"]
 
+    def get_attributes(self):
+        return set(map(lambda x:("" if x[1] else "not_") + x[0], \
+                       self.__attributes.items()))
+
     def get_vertices(self):
         return set(self.__vertices.keys())
         
@@ -122,7 +126,7 @@ class Graph():
             raise GraphException("Tried to remove nonexistant edge!")
         
         del self.__vertices[x][y]
-        if "not_directed" in self.__attributes:
+        if not self.is_directed():
             del self.__vertices[y][x]
             
 
@@ -132,7 +136,7 @@ class Graph():
         appended = set()
         for v in self.__vertices:
             for u in self.__vertices[v]:
-                if "not_weighted" in self.__attributes and (u, v) in appended:
+                if not self.is_directed() and (u, v) in appended:
                     continue
                 isolated.discard(v)
                 isolated.discard(u)
@@ -143,6 +147,6 @@ class Graph():
                     buff.append(f"{v} {u} {price}")
                 appended.add((v, u))
         with open(path, 'w') as f:
-            f.write(" ".join(self.__attributes) + "\n")
+            f.write(" ".join(self.get_attributes()) + "\n")
             f.write("\n".join(isolated) + "\n")
             f.write("\n".join(buff) + "\n")
