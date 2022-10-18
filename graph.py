@@ -31,7 +31,8 @@ class Graph():
             elif atr == "not_directed":
                 self.__attributes["directed"] = False
             else:
-                raise GraphException("One of atttributes was unrecognized: " + atr)
+                raise GraphException(("One of atttributes "
+                                      "wasn't unrecognized: " + atr))
 
     def load(self, name):
         with open(name) as f:
@@ -75,6 +76,9 @@ class Graph():
     def get_attributes(self):
         return set(map(lambda x:("" if x[1] else "not_") + x[0], \
                        self.__attributes.items()))
+
+    def edge_exists(self, x, y):
+        return x in self.__vertices and y in self.__vertices[x]
 
     def get_vertices(self):
         return set(self.__vertices.keys())

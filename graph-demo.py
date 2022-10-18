@@ -49,9 +49,9 @@ def commands():
     for cmd in cmds:
         print(cmd, *cmds[cmd])
 
-
-graphs = {"default": Graph()}
-current = "default"
+default_name = "default"
+graphs = {default_name: Graph()}
+current = default_name
 
 commands()
 
@@ -85,8 +85,8 @@ while True:
         verts = gr.get_vertices()
         
         print(f"Graph \"{current}\"")
-        print("Is{} directed".format("" if gr.is_directed() else " not"))
-        print("Is{} weighted".format("" if gr.is_weighted() else " not"))
+        print("Attributes:")
+        print("; ".join(gr.get_attributes()))
         
         print("Vertices:")
         for v in verts:
@@ -166,7 +166,7 @@ while True:
             print("No such graph!")
     elif cmd == "rename":
         [new_name] = args
-        if current == "default":
+        if current == default_name:
             print("Cannot rename default graph!")
         elif new_name in graphs:
             print("New name already presents in list!")
@@ -175,11 +175,11 @@ while True:
             del graphs[current]
             current = new_name
     elif cmd == "delete":
-        if current == "default":
+        if current == default_name:
             print("Cannot delete default graph!")
         else:
             del graphs[current]
-            current = "default"
+            current = default_name
     elif cmd == "get_graphs":
         print("There is: " + "; ".join(graphs.keys()))
     elif cmd == "get_tasks":
