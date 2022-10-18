@@ -85,8 +85,8 @@ while True:
         verts = gr.get_vertices()
         
         print(f"Graph \"{current}\"")
-        print("Attributes:")
-        print("; ".join(gr.get_attributes()))
+        print("Is " + ("" if gr.is_directed() else "not ")+ "directed")
+        print("Is " + ("" if gr.is_weighted() else "not ")+ "weighted")
         
         print("Vertices:")
         for v in verts:
@@ -189,22 +189,26 @@ while True:
         [task_number] = args
         task = tasks[int(task_number) - 1]
         argc = task.__code__.co_argcount
-        print("Please, provide:")
-        print("\n".join(task.__code__.co_varnames[1:argc]))
+        if argc > 1:
+            print("Please, provide:")
+            print("\n".join(task.__code__.co_varnames[1:argc]))
         try:
-            more_args = input().split()
-        except EOFError:
-            print("No input... No answer!!!")
-            continue
-        if len(more_args) != argc - 1:
-            print("Invalid arguments!")
-            continue
-        try:
+            if argc > 1:
+                more_args = input().split()
+            else:
+                more_args = tuple()
+            if len(more_args) != argc - 1:
+                print("Invalid arguments!")
+                continue
             res = task(gr, *more_args)
             if isinstance(res, Graph):
                 graphs[f"task{task_number}"] = res
+                print(f"Now switch to graph task{task_number}")
             else:
+                print("Answer:")
                 print(res)
+        except EOFError:
+            print("No input... No answer!!!")
         except GraphException as e:
             print(e)
     elif cmd == "exit":

@@ -73,11 +73,7 @@ class Graph():
     def is_directed(self):
         return self.__attributes["directed"]
 
-    def get_attributes(self):
-        return set(map(lambda x:("" if x[1] else "not_") + x[0], \
-                       self.__attributes.items()))
-
-    def edge_exists(self, x, y):
+    def exists_edge(self, x, y):
         return x in self.__vertices and y in self.__vertices[x]
 
     def get_vertices(self):
@@ -88,9 +84,6 @@ class Graph():
             raise GraphException("No such vertex!")
 
         return copy.deepcopy(self.__vertices[v])
-
-    def get_full(self):
-        return copy.deepcopy(self.__vertices)
 
     def add_vertex(self, x):
         if x in self.__vertices:
@@ -132,8 +125,11 @@ class Graph():
         del self.__vertices[x][y]
         if not self.is_directed():
             del self.__vertices[y][x]
-            
 
+    def __list_attributes(self):
+        return set(map(lambda x:("" if x[1] else "not_") + x[0], \
+                       self.__attributes.items()))
+    
     def save(self, path):
         isolated = set(self.__vertices.keys())
         buff = []
@@ -151,6 +147,6 @@ class Graph():
                     buff.append(f"{v} {u} {price}")
                 appended.add((v, u))
         with open(path, 'w') as f:
-            f.write(" ".join(self.get_attributes()) + "\n")
+            f.write(" ".join(self.__list_attributes()) + "\n")
             f.write("\n".join(isolated) + "\n")
             f.write("\n".join(buff) + "\n")

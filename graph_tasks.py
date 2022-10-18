@@ -1,6 +1,8 @@
 
 from graph import Graph, GraphException
 
+# Task should accept graph as first argument!
+
 def task1(gr, vertex):
     """list vertices with outcome degree larger than given vertex has"""
     if not gr.is_directed():
@@ -26,11 +28,11 @@ def task3(gr):
         raise GraphException("This task requires a directed graph!")
 
     newgr = Graph(gr)
-    
-    conf = newgr.get_full()
-    for v in conf:
-        for u in conf[v]:
-            if v not in conf[u]:
+
+    verts = newgr.get_vertices()
+    for v in verts:
+        for u in verts:
+            if gr.exists_edge(v, u) and not gr.exists_edge(u, v):
                 newgr.remove_edge(v, u)
 
     return newgr
