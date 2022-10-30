@@ -69,7 +69,7 @@ while True:
     cmd, *args = line
     # Checking if we know the command
     if cmd not in cmds:
-        print("Uknown command!")
+        print("Unknown command!")
         continue
     # Checking count of arguments
     if not test_args(cmd, args):

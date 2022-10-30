@@ -1,11 +1,11 @@
-directed not_weighted
+directed weighted
 
-porridge tea
-sandwich yoghurt
-yoghurt tea
-tea tea
+porridge tea 10
+sandwich yoghurt 7
+yoghurt tea 3
+tea tea 5
 
-fried_eggs juice
-juice juice
+fried_eggs juice 12
+juice juice 4
 
-water water
+water water 2

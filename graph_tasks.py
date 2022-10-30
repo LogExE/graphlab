@@ -67,19 +67,20 @@ def task4(gr):
 def task5(gr, u, v):
     """find vertex such has paths from u and v with the same size"""
     
-    def bfs(x):
-        q = [x]
-        used = {x: 0}
-        while len(q) > 0:
-            el = q.pop(0)
-            for nei in gr.get_adjacent(el):
-                if nei not in used:
-                    used[nei] = used[el] + 1
-                    q.append(nei)
-        return used
+    q = [u, v]
+    froms = {u: 0, v: 1}
+    lens = {u: 0, v: 0}
+    ans = set()
+    while len(q) > 0:
+        el = q.pop(0)
+        for nei in gr.get_adjacent(el):
+            if nei not in lens:
+                lens[nei] = lens[el] + 1
+                froms[nei] = froms[el]
+                q.append(nei)
+            elif froms[nei] != froms[el]:
+                froms[nei] = 2
+                if lens[el] + 1 == lens[nei]:
+                    ans.add(nei)
 
-    d1 = bfs(u)
-    d2 = bfs(v)
-
-    # TODO: fix it pls
-    return {s for s in d1 if s in d2 and d1[s] == d2[s]}
+    return ans
