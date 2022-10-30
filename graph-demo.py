@@ -2,9 +2,9 @@
 
 import os
 from graph import Graph, GraphException, GraphOperationException
-from graph_tasks import task1, task2, task3
+from graph_tasks import task1, task2, task3, task4, task5
 
-tasks = (task1, task2, task3)
+tasks = (task1, task2, task3, task4, task5)
 
 def clear():
     if os.name == 'nt':
@@ -192,7 +192,7 @@ while True:
         argc = task.__code__.co_argcount
         if argc > 1:
             print("Please, provide:")
-            print("\n".join(task.__code__.co_varnames[1:argc]))
+            print(" ".join(task.__code__.co_varnames[1:argc]))
         try:
             if argc > 1:
                 more_args = input().split()
