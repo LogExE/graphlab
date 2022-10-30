@@ -131,6 +131,7 @@ while True:
     elif cmd == "load":
         [name] = args
         try:
+            # TODO: fix spaces
             graphs[name] = Graph(name + ".txt")
             print("Loaded", name)
         except FileNotFoundError:
