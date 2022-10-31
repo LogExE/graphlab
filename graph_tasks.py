@@ -1,5 +1,4 @@
 
-import heapq
 from graph import Graph, GraphException
 
 # All tasks should accept graph as first argument!
@@ -40,29 +39,37 @@ def task4(gr):
     """check whether orgraph is either a forest or a tree"""
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
-
-    ans = None
     
     def dfs(x):
-        nonlocal ans
-        st[x] = 1
-        for u in gr.get_adjacent(x):
-            if st.get(u, 0) == 0:
-                dfs(u)
-            elif st[u] == 1:
-                ans = ans or "neither"
-        st[x] = 2
+        stack = [x]
+        used = {x}
+        active = set()
+        while len(stack) > 0:
+            top = stack[-1]
+            active.add(top)
+            ex = False
+            for x in gr.get_adjacent(top):
+                if x not in used:
+                    stack.append(x)
+                    used.add(x)
+                    ex = True
+                elif x in active:
+                    return None
+            if not ex: # need to go back
+                stack.pop()
+                active.remove(top)
+        return used
+
+    res = {x: dfs(x) for x in gr.get_vertices()}
+    if any(x is None for x in res): # FOUND CYCLE!!!
+        return "neither"
     
-    for v in gr.get_vertices():
-        st = {}
-        dfs(v)
-        if st.keys() == gr.get_vertices():
-            ans = ans or "tree"
-    ans = ans or "forest"
+    for k in res.keys():
+        if len([x for x in res if k in x]) != 0:
+            del res[k]
 
-    # TODO: income degree
+    return res
 
-    return ans
 
 def task5(gr, u, v):
     """find vertex such has paths from u and v with the same size"""
@@ -70,7 +77,7 @@ def task5(gr, u, v):
     q = [u, v]
     froms = {u: 0, v: 1}
     lens = {u: 0, v: 0}
-    ans = set()
+    sus = set()
     while len(q) > 0:
         el = q.pop(0)
         for nei in gr.get_adjacent(el):
@@ -81,6 +88,20 @@ def task5(gr, u, v):
             elif froms[nei] != froms[el]:
                 froms[nei] = 2
                 if lens[el] + 1 == lens[nei]:
-                    ans.add(nei)
+                    sus.add(nei)
+
+    ans = set()
+    for s in sus:
+        ans = ans.union(gr.get_adjacent(s))
+        ans.add(s)
 
     return ans
+
+def task6(gr):
+    """Prim"""
+    
+    if gr.is_directed() or not gr.is_weighted():
+        raise GraphException(("This task requires "
+                              "a non-directed weighted graph!"))
+
+    

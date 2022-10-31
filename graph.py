@@ -85,6 +85,9 @@ class Graph():
 
         return copy.deepcopy(self.__vertices[v])
 
+    def get_incdeg(self, v):
+        return len({u for u in self.__vertices if v in self.__vertices[u]})
+
     def add_vertex(self, x):
         if x in self.__vertices:
             raise GraphOperationException("Tried to add existing vertex!")
