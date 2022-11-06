@@ -106,7 +106,7 @@ def task5(gr, u, v):
 
 
 def task6(gr):
-    """Prim"""
+    """Prim algorithm"""
 
     if gr.is_directed() or not gr.is_weighted():
         raise GraphException(("This task requires "

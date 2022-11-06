@@ -2,9 +2,9 @@
 
 import os
 from graph import Graph, GraphException, GraphOperationException
-from graph_tasks import task1, task2, task3, task4, task5
+from graph_tasks import task1, task2, task3, task4, task5, task6
 
-tasks = (task1, task2, task3, task4, task5)
+tasks = (task1, task2, task3, task4, task5, task6)
 
 
 def clear():
@@ -60,7 +60,7 @@ print("Please type \"cmds\" to see availible commands")
 while True:
     line = None
     try:
-        line = input("~> ")
+        line = input(current + "~> ")
     except EOFError:
         line = "exit"
         print(line)
@@ -86,13 +86,12 @@ while True:
     elif cmd == "print":
         verts = gr.get_vertices()
 
-        print(f"Graph \"{current}\"")
+        print(f"Graph: {current}")
         print("Is " + ("" if gr.is_directed() else "not ") + "directed")
         print("Is " + ("" if gr.is_weighted() else "not ") + "weighted")
 
         print("Vertices:")
-        for v in verts:
-            print(v)
+        print(" ".join(verts))
 
         print("Connections:")
         printed = set()
@@ -133,7 +132,6 @@ while True:
     elif cmd == "load":
         [name] = args
         try:
-            # TODO: fix spaces
             graphs[name] = Graph(name + ".txt")
             print("Loaded", name)
         except FileNotFoundError:
@@ -184,7 +182,7 @@ while True:
             del graphs[current]
             current = default_name
     elif cmd == "get_graphs":
-        print("There is: " + "; ".join(graphs.keys()))
+        print("There is: " + " ".join(graphs.keys()))
     elif cmd == "get_tasks":
         for i, task in enumerate(tasks, 1):
             print(f"Task {i}:", task.__doc__)
