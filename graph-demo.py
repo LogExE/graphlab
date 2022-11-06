@@ -55,12 +55,12 @@ default_name = "default"
 graphs = {default_name: Graph()}
 current = default_name
 
-commands()
+print("Please type \"cmds\" to see availible commands")
 
 while True:
     line = None
     try:
-        line = input("cmd> ")
+        line = input("~> ")
     except EOFError:
         line = "exit"
         print(line)

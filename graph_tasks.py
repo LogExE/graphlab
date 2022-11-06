@@ -44,6 +44,11 @@ def task4(gr):
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
 
+    degs = [gr.get_incdeg(x) for x in gr.get_vertices()]
+
+    if any(x > 1 for x in degs):
+        return "neither"
+
     def dfs(x):
         stack = [x]
         used = {x}
@@ -58,22 +63,19 @@ def task4(gr):
                     used.add(x)
                     ex = True
                 elif x in active:
-                    return None
+                    return True
             if not ex:  # need to go back
                 stack.pop()
                 active.remove(top)
-        return used
+        return False
 
-    res = {x: dfs(x) for x in gr.get_vertices()}
-    if any(x is None for x in res):  # FOUND CYCLE!!!
+    if any(dfs(x) for x in gr.get_vertices()):  # cylces
         return "neither"
 
-    filtered = {}
-    for k, li in res.items():
-        if all(k not in res[x] for x in res if x != k):
-            filtered[k] = li
+    if degs.count(0) != 1:
+        return "forest"
 
-    return "tree" if len(filtered) == 1 else "forest"
+    return "tree"
 
 
 def task5(gr, u, v):
