@@ -9,11 +9,11 @@ def task1(gr, v):
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
 
-    od = len(gr.get_adjacent(v))
+    out_deg = len(gr.get_adjacent(v))
     ret = set()
-    for u in gr.get_vertices():
-        if len(gr.get_adjacent(u)) > od:
-            ret.add(u)
+    for vert in gr.get_vertices():
+        if len(gr.get_adjacent(vert)) > out_deg:
+            ret.add(vert)
     return ret
 
 
@@ -31,10 +31,10 @@ def task3(gr):
         raise GraphException("This task requires a directed graph!")
 
     newgr = Graph(gr)
-    for v in newgr.get_vertices():
-        for u in gr.get_adjacent(v):
-            if not gr.exists_edge(u, v):
-                newgr.remove_edge(v, u)
+    for v_from in newgr.get_vertices():
+        for v_to in gr.get_adjacent(v_from):
+            if not gr.exists_edge(v_to, v_from):
+                newgr.remove_edge(v_from, v_to)
 
     return newgr
 
@@ -44,14 +44,14 @@ def task4(gr):
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
 
-    degs = [gr.get_incdeg(x) for x in gr.get_vertices()]
+    degs = [gr.get_incdeg(vert) for vert in gr.get_vertices()]
 
-    if any(x > 1 for x in degs):
+    if any(deg > 1 for deg in degs):
         return "neither"
 
-    def dfs(x):
-        stack = [x]
-        used = {x}
+    def dfs(v):
+        stack = [v]
+        used = {v}
         active = set()
         while len(stack) > 0:
             top = stack[-1]
@@ -81,28 +81,19 @@ def task4(gr):
 def task5(gr, u, v):
     """find vertex such has paths from u and v with the same size"""
 
+    if u == v:
+        raise GraphException("Vertices were the same!")
+
     q = [u, v]
-    froms = {u: 0, v: 1}
-    lens = {u: 0, v: 0}
-    sus = set()
+    used = {u, v}
     while len(q) > 0:
         el = q.pop(0)
         for nei in gr.get_adjacent(el):
-            if nei not in lens:
-                lens[nei] = lens[el] + 1
-                froms[nei] = froms[el]
+            if nei not in used:
                 q.append(nei)
-            elif froms[nei] != froms[el]:
-                froms[nei] = 2
-                if lens[el] + 1 == lens[nei]:
-                    sus.add(nei)
+                used.add(nei)
 
-    ans = set()
-    for s in sus:
-        ans = ans.union(gr.get_adjacent(s))
-        ans.add(s)
-
-    return ans
+    return used
 
 
 def task6(gr):
@@ -111,3 +102,23 @@ def task6(gr):
     if gr.is_directed() or not gr.is_weighted():
         raise GraphException(("This task requires "
                               "a non-directed weighted graph!"))
+
+    verts = gr.get_vertices()
+    first, *rest = verts
+    seen = {first}
+    res = Graph()
+
+    while len(seen) != len(verts):
+        medg = None
+        for v_from in verts:
+            for v_to, w in gr.get_adjacent(v_from).items():
+                if v_from not in seen and v_to in seen:
+                    if medg is None:
+                        medg = (w, v_from, v_to)
+                    else:
+                        medg = min(medg, (w, v_from, v_to))
+        w, v_from, v_to = medg
+        seen.add(v_from)
+        res.add_edge(v_from, v_to, w)
+
+    return res

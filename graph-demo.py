@@ -60,7 +60,7 @@ print("Please type \"cmds\" to see availible commands")
 while True:
     line = None
     try:
-        line = input(current + "~> ")
+        line = input("\n" + current + " ~> ")
     except EOFError:
         line = "exit"
         print(line)
