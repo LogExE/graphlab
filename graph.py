@@ -21,7 +21,7 @@ class Graph():
                atr in ("directed", "not_directed") and \
                "directed" in self.__attributes:
                 raise GraphException("One of attributes repeated!")
-            
+
             if atr == "weighted":
                 self.__attributes["weighted"] = True
             elif atr == "not_weighted":
@@ -78,7 +78,7 @@ class Graph():
 
     def get_vertices(self):
         return set(self.__vertices.keys())
-        
+
     def get_adjacent(self, v):
         if v not in self.__vertices:
             raise GraphException("No such vertex!")
@@ -91,9 +91,9 @@ class Graph():
     def add_vertex(self, x):
         if x in self.__vertices:
             raise GraphOperationException("Tried to add existing vertex!")
-        
+
         self.__vertices[x] = {}
-            
+
     def remove_vertex(self, x):
         if x not in self.__vertices:
             raise GraphOperationException(
@@ -113,10 +113,10 @@ class Graph():
             self.add_vertex(x)
         if y not in self.__vertices:
             self.add_vertex(y)
-            
+
         if y in self.__vertices[x]:
             raise GraphOperationException("Tried to add an existing edge!")
-        
+
         self.__vertices[x][y] = price
         if not self.is_directed():
             self.__vertices[y][x] = price
@@ -124,15 +124,15 @@ class Graph():
     def remove_edge(self, x, y):
         if x not in self.__vertices or y not in self.__vertices[x]:
             raise GraphException("Tried to remove nonexistant edge!")
-        
+
         del self.__vertices[x][y]
         if not self.is_directed():
             del self.__vertices[y][x]
 
     def __list_attributes(self):
-        return set(map(lambda x:("" if x[1] else "not_") + x[0], \
+        return set(map(lambda x: ("" if x[1] else "not_") + x[0],
                        self.__attributes.items()))
-    
+
     def save(self, path):
         isolated = set(self.__vertices.keys())
         buff = []

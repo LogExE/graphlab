@@ -6,6 +6,7 @@ from graph_tasks import task1, task2, task3, task4, task5
 
 tasks = (task1, task2, task3, task4, task5)
 
+
 def clear():
     if os.name == 'nt':
         os.system('cls')
@@ -49,6 +50,7 @@ def commands():
     for cmd in cmds:
         print(cmd, *cmds[cmd])
 
+
 default_name = "default"
 graphs = {default_name: Graph()}
 current = default_name
@@ -83,15 +85,15 @@ while True:
         commands()
     elif cmd == "print":
         verts = gr.get_vertices()
-        
+
         print(f"Graph \"{current}\"")
-        print("Is " + ("" if gr.is_directed() else "not ")+ "directed")
-        print("Is " + ("" if gr.is_weighted() else "not ")+ "weighted")
-        
+        print("Is " + ("" if gr.is_directed() else "not ") + "directed")
+        print("Is " + ("" if gr.is_weighted() else "not ") + "weighted")
+
         print("Vertices:")
         for v in verts:
             print(v)
-            
+
         print("Connections:")
         printed = set()
         for x in verts:

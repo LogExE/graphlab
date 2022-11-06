@@ -3,11 +3,12 @@ from graph import Graph, GraphException
 
 # All tasks should accept graph as first argument!
 
+
 def task1(gr, v):
     """list vertices with outcome degree larger than given vertex has"""
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
-    
+
     od = len(gr.get_adjacent(v))
     ret = set()
     for u in gr.get_vertices():
@@ -15,12 +16,14 @@ def task1(gr, v):
             ret.add(u)
     return ret
 
+
 def task2(gr, v):
     """list non-adjacent vertices for given vertex"""
     if gr.is_directed():
         raise GraphException("This task requires a non-directed graph!")
 
     return gr.get_vertices() - gr.get_adjacent(v).keys() - {v}
+
 
 def task3(gr):
     """delete solo edges from directed graph"""
@@ -35,11 +38,12 @@ def task3(gr):
 
     return newgr
 
+
 def task4(gr):
     """check whether orgraph is either a forest or a tree"""
     if not gr.is_directed():
         raise GraphException("This task requires a directed graph!")
-    
+
     def dfs(x):
         stack = [x]
         used = {x}
@@ -55,25 +59,26 @@ def task4(gr):
                     ex = True
                 elif x in active:
                     return None
-            if not ex: # need to go back
+            if not ex:  # need to go back
                 stack.pop()
                 active.remove(top)
         return used
 
     res = {x: dfs(x) for x in gr.get_vertices()}
-    if any(x is None for x in res): # FOUND CYCLE!!!
+    if any(x is None for x in res):  # FOUND CYCLE!!!
         return "neither"
-    
-    for k in res.keys():
-        if len([x for x in res if k in x]) != 0:
-            del res[k]
 
-    return res
+    filtered = {}
+    for k, li in res.items():
+        if all(k not in res[x] for x in res if x != k):
+            filtered[k] = li
+
+    return "tree" if len(filtered) == 1 else "forest"
 
 
 def task5(gr, u, v):
     """find vertex such has paths from u and v with the same size"""
-    
+
     q = [u, v]
     froms = {u: 0, v: 1}
     lens = {u: 0, v: 0}
@@ -97,11 +102,10 @@ def task5(gr, u, v):
 
     return ans
 
+
 def task6(gr):
     """Prim"""
-    
+
     if gr.is_directed() or not gr.is_weighted():
         raise GraphException(("This task requires "
                               "a non-directed weighted graph!"))
-
-    
