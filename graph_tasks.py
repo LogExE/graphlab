@@ -102,21 +102,33 @@ def task6(gr):
     if gr.is_directed() or not gr.is_weighted():
         raise GraphException(("This task requires "
                               "a non-directed weighted graph!"))
-
+    
     verts = gr.get_vertices()
     first, *rest = verts
+
+    q = [first]
+    used = {first}
+    while len(q) > 0:
+        el = q.pop(0)
+        for nei in gr.get_adjacent(el):
+            if nei not in used:
+                q.append(nei)
+                used.add(nei)
+
+    if used != verts:
+        raise GraphException("Graph was not connected!")
+
     seen = {first}
     res = Graph()
-
+    
     while len(seen) != len(verts):
         medg = None
-        for v_from in verts:
+        for v_from in verts - seen:
             for v_to, w in gr.get_adjacent(v_from).items():
-                if v_from not in seen and v_to in seen:
-                    if medg is None:
-                        medg = (w, v_from, v_to)
-                    else:
-                        medg = min(medg, (w, v_from, v_to))
+                if v_to in seen:
+                    edg = (w, v_from, v_to)
+                    if medg is None or edg < medg:
+                        medg = edg
         w, v_from, v_to = medg
         seen.add(v_from)
         res.add_edge(v_from, v_to, w)
