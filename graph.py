@@ -123,7 +123,8 @@ class Graph():
 
     def remove_edge(self, x, y):
         if x not in self.__vertices or y not in self.__vertices[x]:
-            raise GraphException("Tried to remove nonexistant edge!")
+            raise GraphOperationException(("Tried to remove "
+                                           "nonexistant edge!"))
 
         del self.__vertices[x][y]
         if not self.is_directed():

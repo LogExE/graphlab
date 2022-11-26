@@ -106,18 +106,6 @@ def task6(gr):
     verts = gr.get_vertices()
     first, *rest = verts
 
-    q = [first]
-    used = {first}
-    while len(q) > 0:
-        el = q.pop(0)
-        for nei in gr.get_adjacent(el):
-            if nei not in used:
-                q.append(nei)
-                used.add(nei)
-
-    if used != verts:
-        raise GraphException("Graph was not connected!")
-
     seen = {first}
     res = Graph()
     
@@ -129,6 +117,8 @@ def task6(gr):
                     edg = (w, v_from, v_to)
                     if medg is None or edg < medg:
                         medg = edg
+        if medg is None:
+            raise GraphException("Graph was not connected!")
         w, v_from, v_to = medg
         seen.add(v_from)
         res.add_edge(v_from, v_to, w)
