@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 from graph import Graph, GraphException, GraphOperationException
-from graph_tasks import task1, task2, task3, task4, task5, task6
+from graph_tasks import task1, task2, task3, \
+                        task4, task5, task6, \
+                        task7
 
-tasks = (task1, task2, task3, task4, task5, task6)
+tasks = (task1, task2, task3, task4, task5, task6, task7)
 
 
 def clear():

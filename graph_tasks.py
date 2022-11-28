@@ -124,3 +124,18 @@ def task6(gr):
         res.add_edge(v_from, v_to, w)
 
     return res
+
+INF = 10 ** 9
+
+def task7(gr, u):
+    verts = gr.get_vertices()
+    d = {v: INF for v in verts}
+    d[u] = 0
+
+    for i in range(len(verts) - 1):
+        for x in verts:
+            for y, w in gr.get_adjacent(x).items():
+                if d[y] > d[x] + int(w):
+                    d[y] = d[x] + int(w)
+
+    return d
