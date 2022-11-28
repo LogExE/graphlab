@@ -125,17 +125,36 @@ def task6(gr):
 
     return res
 
+
 INF = 10 ** 9
+
 
 def task7(gr, u):
     verts = gr.get_vertices()
     d = {v: INF for v in verts}
     d[u] = 0
+    pred = {v: set() for v in verts}
 
-    for i in range(len(verts) - 1):
+    for _ in range(len(verts) - 1):
         for x in verts:
             for y, w in gr.get_adjacent(x).items():
                 if d[y] > d[x] + int(w):
+                    pred[y] = {x}
                     d[y] = d[x] + int(w)
+                elif d[y] == d[x] + int(w):
+                    pred[y].add(x)
 
-    return d
+    ways = {v: 0 for v in verts}
+    ways[u] = 1
+
+    def calc(x):
+        for y in gr.get_adjacent(x):
+            if x in pred[y]:
+                ways[y] += ways[x]
+                pred[y].remove(x)
+                if len(pred[y]) == 0:
+                    calc(y)
+
+    calc(u)
+
+    return ways
