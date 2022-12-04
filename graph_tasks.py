@@ -140,13 +140,56 @@ def task7(gr, u):
     d[u] = 0
     pred = {v: set() for v in verts}
 
+    unused = set(verts)
+    cur = u
+    while len(unused) > 0:
+        for y, w in gr.get_adjacent(cur).items():
+            w = int(w)
+            if w < 0:
+                raise GraphException("Graph has a neagtive edge!")
+            if d[y] > d[cur] + w:
+                pred[y] = {cur}
+                d[y] = d[cur] + w
+            elif d[y] == d[cur] + w:
+                pred[y].add(cur)
+        unused.remove(cur)
+        cur = min(unused, default=None, key=lambda x: d[x])
+
+    ways = {v: 0 for v in verts}
+    ways[u] = 1
+
+    def calc(x):
+        for y in gr.get_adjacent(x):
+            if x in pred[y]:
+                ways[y] += ways[x]
+                pred[y].remove(x)
+                if len(pred[y]) == 0:
+                    calc(y)
+
+    calc(u)
+
+    return ways
+
+
+def task8(gr, u, v, k):
+    """find k shortest paths from u to v"""
+
+    if not gr.is_weighted():
+        raise GraphException("This task requires a weighted graph!")
+
+    verts = gr.get_vertices()
+    d = {v: INF for v in verts}
+    d[u] = 0
+    pred = {v: set() for v in verts}
+
     for _ in range(len(verts) - 1):
         for x in verts:
             for y, w in gr.get_adjacent(x).items():
-                if d[y] > d[x] + int(w):
+                w = int(w)
+                if d[y] > d[x] + w:
                     pred[y] = {x}
-                    d[y] = d[x] + int(w)
-                elif d[y] == d[x] + int(w):
+                    d[y] = d[x] + w
+                elif d[y] == d[x] + w:
                     pred[y].add(x)
 
     for x in verts:
