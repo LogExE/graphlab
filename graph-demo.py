@@ -143,14 +143,14 @@ while True:
         except GraphException as e:
             print("File is invalid:", e)
     elif cmd == "save":
-        name = current + ".txt"
-        if os.path.exists(name):
-            print(f"File \"{name}\" exists. Overwrite it? (y/n)")
+        fname = current + ".txt"
+        if os.path.exists(fname):
+            print(f"File \"{fname}\" exists. Overwrite it? (y/n)")
             try:
                 ans = input()
                 if ans == 'y':
-                    gr.save(name)
-                    print("Wrote", name)
+                    gr.save(fname)
+                    print("Wrote", fname)
                 elif ans == 'n':
                     print("Didn't save the graph")
                 else:
@@ -158,8 +158,8 @@ while True:
             except EOFError:
                 print("No input... Not saving then")
         else:
-            gr.save(name)
-            print("Wrote", name)
+            gr.save(fname)
+            print("Wrote", fname)
     elif cmd == "copy":
         [cname] = args
         if cname in graphs:

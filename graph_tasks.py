@@ -102,13 +102,13 @@ def task6(gr):
     if gr.is_directed() or not gr.is_weighted():
         raise GraphException(("This task requires "
                               "a non-directed weighted graph!"))
-    
+
     verts = gr.get_vertices()
-    first, *rest = verts
+    first, *_ = verts
 
     seen = {first}
     res = Graph()
-    
+
     while len(seen) != len(verts):
         medg = None
         for v_from in verts - seen:
@@ -130,6 +130,11 @@ INF = 10 ** 9
 
 
 def task7(gr, u):
+    """counts of shortest paths from u to other vertices"""
+
+    if not gr.is_weighted():
+        raise GraphException("This task requires a weighted graph!")
+
     verts = gr.get_vertices()
     d = {v: INF for v in verts}
     d[u] = 0
@@ -143,6 +148,11 @@ def task7(gr, u):
                     d[y] = d[x] + int(w)
                 elif d[y] == d[x] + int(w):
                     pred[y].add(x)
+
+    for x in verts:
+        for y, w in gr.get_adjacent(x).items():
+            if d[y] > d[x] + int(w):
+                raise GraphException("Graph has a negative cycle!")
 
     ways = {v: 0 for v in verts}
     ways[u] = 1
