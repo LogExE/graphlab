@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import os
+import os.path
 from graph import Graph, GraphException, GraphOperationException
-from graph_tasks import task1, task2, task3, \
-                        task4, task5, task6, \
-                        task7
+from graph_tasks import (task1, task2, task3,
+                         task4, task5, task6,
+                         task7)
 
 tasks = (task1, task2, task3, task4, task5, task6, task7)
 
@@ -29,7 +30,7 @@ cmds = {
     "remove_edge": ["v1", "v2"],
     "load": ["in_file"],
     "save": [],
-    "copy": [],
+    "copy": ["copy_name"],
     "create": ["attrib1", "attrib2", "name"],
     "switch": ["to_name"],
     "rename": ["new_name"],
@@ -87,10 +88,11 @@ while True:
         commands()
     elif cmd == "print":
         verts = gr.get_vertices()
+        directed = gr.is_directed()
+        weighted = gr.is_weighted()
 
-        print(f"Graph: {current}")
-        print("Is " + ("" if gr.is_directed() else "not ") + "directed")
-        print("Is " + ("" if gr.is_weighted() else "not ") + "weighted")
+        print("Is directed:", directed)
+        print("Is weighted:", weighted)
 
         print("Vertices:")
         print(" ".join(verts))
@@ -100,14 +102,14 @@ while True:
         for x in verts:
             adj = gr.get_adjacent(x)
             for y in adj:
-                if not gr.is_directed() and (y, x) in printed:
+                if not directed and (y, x) in printed:
                     continue
                 msg = None
-                if gr.is_directed():
+                if directed:
                     msg = f"{x} -> {y}"
                 else:
                     msg = f"{x} <-> {y}"
-                if gr.is_weighted():
+                if weighted:
                     msg += f": {adj[y]}"
                 print(msg)
                 printed.add((x, y))
@@ -132,26 +134,38 @@ while True:
         except GraphOperationException as e:
             print(e)
     elif cmd == "load":
-        [name] = args
+        [fname] = args
         try:
-            graphs[name] = Graph(name + ".txt")
-            print("Loaded", name)
+            graphs[fname] = Graph(fname + ".txt")
+            print("Loaded", fname)
         except FileNotFoundError:
             print("No such file!")
         except GraphException as e:
             print("File is invalid:", e)
     elif cmd == "save":
         name = current + ".txt"
-        gr.save(name)
-        print("Wrote", name)
+        if os.path.exists(name):
+            print(f"File \"{name}\" exists. Overwrite it? (y/n)")
+            try:
+                ans = input()
+                if ans == 'y':
+                    gr.save(name)
+                    print("Wrote", name)
+                elif ans == 'n':
+                    print("Didn't save the graph")
+                else:
+                    print("I'll count it as no")
+            except EOFError:
+                print("No input... Not saving then")
+        else:
+            gr.save(name)
+            print("Wrote", name)
     elif cmd == "copy":
-        n = 1
-        pref = current + "_copy"
-        while pref + str(n) in graphs:
-            n += 1
-        name = pref + str(n)
-        graphs[name] = Graph(gr)
-        print(f"Copied: \"{name}\"")
+        [cname] = args
+        if cname in graphs:
+            print("Name already presents in list!")
+        else:
+            graphs[cname] = Graph(gr)
     elif cmd == "create":
         *attribs, name = args
         if name in graphs:
