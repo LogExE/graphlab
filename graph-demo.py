@@ -5,9 +5,9 @@ import os.path
 from graph import Graph, GraphException, GraphOperationException
 from graph_tasks import (task1, task2, task3,
                          task4, task5, task6,
-                         task7)
+                         task7, task8)
 
-tasks = (task1, task2, task3, task4, task5, task6, task7)
+tasks = (task1, task2, task3, task4, task5, task6, task7, task8)
 
 
 def clear():
@@ -134,9 +134,10 @@ while True:
         except GraphOperationException as e:
             print(e)
     elif cmd == "load":
-        [fname] = args
+        [name] = args
         try:
-            graphs[fname] = Graph(fname + ".txt")
+            fname = name + ".txt"
+            graphs[name] = Graph(fname)
             print("Loaded", fname)
         except FileNotFoundError:
             print("No such file!")

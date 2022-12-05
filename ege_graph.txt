@@ -1,0 +1,16 @@
+directed weighted
+
+a b 1
+a c 2
+a d 1
+a e 1
+b f 100
+b c 1
+f g 1
+c g 1
+c d 20
+d e 3
+d g 2
+d h 1
+e h 1
+h g 1

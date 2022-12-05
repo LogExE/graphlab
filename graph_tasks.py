@@ -144,9 +144,12 @@ def task7(gr, u):
     cur = u
     while len(unused) > 0:
         for y, w in gr.get_adjacent(cur).items():
+            if not w.isnumeric():
+                raise GraphException(("Graph has a "
+                                      "non-integer edge mark!"))
             w = int(w)
             if w < 0:
-                raise GraphException("Graph has a neagtive edge!")
+                raise GraphException("Graph has a negative edge!")
             if d[y] > d[cur] + w:
                 pred[y] = {cur}
                 d[y] = d[cur] + w
@@ -181,10 +184,14 @@ def task8(gr, u, v, k):
     d = {v: INF for v in verts}
     d[u] = 0
     pred = {v: set() for v in verts}
+    k = int(k)
 
     for _ in range(len(verts) - 1):
         for x in verts:
             for y, w in gr.get_adjacent(x).items():
+                if not w.isnumeric():
+                    raise GraphException(("Graph has a "
+                                          "non-integer edge mark!"))
                 w = int(w)
                 if d[y] > d[x] + w:
                     pred[y] = {x}
@@ -197,17 +204,17 @@ def task8(gr, u, v, k):
             if d[y] > d[x] + int(w):
                 raise GraphException("Graph has a negative cycle!")
 
-    ways = {v: 0 for v in verts}
-    ways[u] = 1
+    ways = []
 
-    def calc(x):
-        for y in gr.get_adjacent(x):
-            if x in pred[y]:
-                ways[y] += ways[x]
-                pred[y].remove(x)
-                if len(pred[y]) == 0:
-                    calc(y)
+    def calc(cur, path):
+        mod_path = cur + (" " + path if path != "" else "")
+        if len(pred[cur]) == 0:
+            ways.append(mod_path)
+            return
+        
+        for prev in pred[cur]:
+            calc(prev, mod_path)
 
-    calc(u)
-
-    return ways
+    calc(v, "")
+            
+    return ways[:k]
