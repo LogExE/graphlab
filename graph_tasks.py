@@ -259,7 +259,7 @@ def task9(gr):
             while c != u:
                 nodes.append(c)
                 c = nxt[c][u]
-                print(c, v, u)
             nodes.append(u)
             ways[v][u] = " ".join(nodes)
+            
     return ways
