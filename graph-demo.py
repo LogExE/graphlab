@@ -5,9 +5,9 @@ import os.path
 from graph import Graph, GraphException, GraphOperationException
 from graph_tasks import (task1, task2, task3,
                          task4, task5, task6,
-                         task7, task8)
+                         task7, task8, task9)
 
-tasks = (task1, task2, task3, task4, task5, task6, task7, task8)
+tasks = (task1, task2, task3, task4, task5, task6, task7, task8, task9)
 
 
 def clear():

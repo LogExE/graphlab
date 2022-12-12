@@ -218,3 +218,48 @@ def task8(gr, u, v, k):
     calc(v, "")
             
     return ways[:k]
+
+
+def task9(gr):
+    if not gr.is_weighted():
+        raise GraphException("This task requires a weighted graph!")
+
+    verts = gr.get_vertices()
+
+    d = {v: {} for v in verts}
+    nxt = {v: {} for v in verts}
+    for v in verts:
+        adj = gr.get_adjacent(v)
+        for u in adj:
+            if not adj[u].isnumeric():
+                raise GraphException(("Graph has a "
+                                     "non-integer edge mark!"))
+            d[v][u] = int(adj[u])
+            nxt[v][u] = u
+        for u in verts - adj.keys():
+            d[v][u] = INF
+            nxt[v][u] = None
+        d[v][v] = 0
+        nxt[v][v] = v
+    
+    for x in verts:
+        for y in verts:
+            for z in verts:
+                if d[y][x] + d[x][z] < d[y][z]:
+                    d[y][z] = d[y][x] + d[x][z]
+                    nxt[y][z] = nxt[y][x]
+
+    ways = {v: {}  for v in verts}
+    for v in verts:
+        for u in verts:
+            if nxt[v][u] is None:
+                continue
+            nodes = []
+            c = v
+            while c != u:
+                nodes.append(c)
+                c = nxt[c][u]
+                print(c, v, u)
+            nodes.append(u)
+            ways[v][u] = " ".join(nodes)
+    return ways
