@@ -148,7 +148,7 @@ def task7(gr, u):
                 w = float(w)
             except ValueError:
                 raise GraphException(("Graph has a "
-                                      "non-integer edge mark!"))
+                                      "non-numeric edge mark!"))
             if w < 0:
                 raise GraphException("Graph has a negative edge!")
             if d[y] > d[cur] + w:
@@ -194,7 +194,7 @@ def task8(gr, u, v, k):  # TODO: find k shortest in sorted order instead
                     w = float(w)
                 except ValueError:
                     raise GraphException(("Graph has a "
-                                          "non-integer edge mark!"))
+                                          "non-numeric edge mark!"))
                 if d[y] > d[x] + w:
                     pred[y] = {x}
                     d[y] = d[x] + w
@@ -238,7 +238,7 @@ def task9(gr):  # TODO: consider negative cycles
                 d[v][u] = float(adj[u])
             except ValueError:
                 raise GraphException(("Graph has a "
-                                      "non-integer edge mark!"))
+                                      "non-numeric edge mark!"))
             nxt[v][u] = u
         for u in verts - adj.keys():
             d[v][u] = INF
