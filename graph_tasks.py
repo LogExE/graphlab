@@ -78,7 +78,7 @@ def task4(gr):
     return "tree"
 
 
-def task5(gr, u, v):
+def task5(gr, u, v):  # TODO: solve this one
     """find vertex such has paths from u and v with the same size"""
 
     if u == v:
@@ -145,7 +145,7 @@ def task7(gr, u):
     while len(unused) > 0:
         for y, w in gr.get_adjacent(cur).items():
             try:
-                w = int(w)
+                w = float(w)
             except ValueError:
                 raise GraphException(("Graph has a "
                                       "non-integer edge mark!"))
@@ -175,7 +175,7 @@ def task7(gr, u):
     return ways
 
 
-def task8(gr, u, v, k):
+def task8(gr, u, v, k):  # TODO: find k shortest in sorted order instead
     """find k shortest paths from u to v"""
 
     if not gr.is_weighted():
@@ -191,7 +191,7 @@ def task8(gr, u, v, k):
         for x in verts:
             for y, w in gr.get_adjacent(x).items():
                 try:
-                    w = int(w)
+                    w = float(w)
                 except ValueError:
                     raise GraphException(("Graph has a "
                                           "non-integer edge mark!"))
@@ -222,7 +222,7 @@ def task8(gr, u, v, k):
     return ways[:k]
 
 
-def task9(gr):
+def task9(gr):  # TODO: consider negative cycles
     """find shortest path from each pair of vertices"""
     if not gr.is_weighted():
         raise GraphException("This task requires a weighted graph!")
@@ -235,7 +235,7 @@ def task9(gr):
         adj = gr.get_adjacent(v)
         for u in adj:
             try:
-                d[v][u] = int(adj[u])
+                d[v][u] = float(adj[u])
             except ValueError:
                 raise GraphException(("Graph has a "
                                       "non-integer edge mark!"))
