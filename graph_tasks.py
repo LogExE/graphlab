@@ -144,10 +144,11 @@ def task7(gr, u):
     cur = u
     while len(unused) > 0:
         for y, w in gr.get_adjacent(cur).items():
-            if not w.isnumeric():
+            try:
+                w = int(w)
+            except ValueError:
                 raise GraphException(("Graph has a "
                                       "non-integer edge mark!"))
-            w = int(w)
             if w < 0:
                 raise GraphException("Graph has a negative edge!")
             if d[y] > d[cur] + w:
@@ -189,10 +190,11 @@ def task8(gr, u, v, k):
     for _ in range(len(verts) - 1):
         for x in verts:
             for y, w in gr.get_adjacent(x).items():
-                if not w.isnumeric():
+                try:
+                    w = int(w)
+                except ValueError:
                     raise GraphException(("Graph has a "
                                           "non-integer edge mark!"))
-                w = int(w)
                 if d[y] > d[x] + w:
                     pred[y] = {x}
                     d[y] = d[x] + w
@@ -211,16 +213,17 @@ def task8(gr, u, v, k):
         if len(pred[cur]) == 0:
             ways.append(mod_path)
             return
-        
+
         for prev in pred[cur]:
             calc(prev, mod_path)
 
     calc(v, "")
-            
+
     return ways[:k]
 
 
 def task9(gr):
+    """find shortest path from each pair of vertices"""
     if not gr.is_weighted():
         raise GraphException("This task requires a weighted graph!")
 
@@ -231,17 +234,18 @@ def task9(gr):
     for v in verts:
         adj = gr.get_adjacent(v)
         for u in adj:
-            if not adj[u].isnumeric():
+            try:
+                d[v][u] = int(adj[u])
+            except ValueError:
                 raise GraphException(("Graph has a "
-                                     "non-integer edge mark!"))
-            d[v][u] = int(adj[u])
+                                      "non-integer edge mark!"))
             nxt[v][u] = u
         for u in verts - adj.keys():
             d[v][u] = INF
             nxt[v][u] = None
         d[v][v] = 0
         nxt[v][v] = v
-    
+
     for x in verts:
         for y in verts:
             for z in verts:
@@ -249,7 +253,7 @@ def task9(gr):
                     d[y][z] = d[y][x] + d[x][z]
                     nxt[y][z] = nxt[y][x]
 
-    ways = {v: {}  for v in verts}
+    ways = {v: {} for v in verts}
     for v in verts:
         for u in verts:
             if nxt[v][u] is None:
@@ -261,5 +265,5 @@ def task9(gr):
                 c = nxt[c][u]
             nodes.append(u)
             ways[v][u] = " ".join(nodes)
-            
+
     return ways
