@@ -32,7 +32,7 @@ cmds = {
     "save": [],
     "copy": ["copy_name"],
     "create": ["attrib1", "attrib2", "name"],
-    "switch": ["to_name"],
+    "to": ["to_name"],
     "rename": ["new_name"],
     "delete": [],
     "get_graphs": [],
@@ -176,7 +176,7 @@ while True:
                 graphs[name] = Graph(attribs)
             except GraphException as e:
                 print(e)
-    elif cmd == "switch":
+    elif cmd == "to":
         [to_name] = args
         if to_name in graphs:
             current = to_name
@@ -221,7 +221,7 @@ while True:
             res = task(gr, *more_args)
             if isinstance(res, Graph):
                 graphs[f"task{task_number}"] = res
-                print(f"Now switch to graph task{task_number}")
+                print(f"Now go to graph task{task_number}")
             else:
                 print("Answer:")
                 print(res)

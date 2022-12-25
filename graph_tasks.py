@@ -1,4 +1,5 @@
 
+import math
 from graph import Graph, GraphException
 
 # All tasks should accept graph as first argument!
@@ -126,9 +127,6 @@ def task6(gr):
     return res
 
 
-INF = 10 ** 9
-
-
 def task7(gr, u):
     """counts of shortest paths from u to other vertices"""
 
@@ -136,7 +134,7 @@ def task7(gr, u):
         raise GraphException("This task requires a weighted graph!")
 
     verts = gr.get_vertices()
-    d = {v: INF for v in verts}
+    d = {v: math.inf for v in verts}
     d[u] = 0
     pred = {v: set() for v in verts}
 
@@ -182,7 +180,7 @@ def task8(gr, u, v, k):  # TODO: find k shortest in sorted order instead
         raise GraphException("This task requires a weighted graph!")
 
     verts = gr.get_vertices()
-    d = {v: INF for v in verts}
+    d = {v: math.inf for v in verts}
     d[u] = 0
     pred = {v: set() for v in verts}
     k = int(k)
@@ -222,7 +220,7 @@ def task8(gr, u, v, k):  # TODO: find k shortest in sorted order instead
     return ways[:k]
 
 
-def task9(gr):  # TODO: consider negative cycles
+def task9(gr):
     """find shortest path from each pair of vertices"""
     if not gr.is_weighted():
         raise GraphException("This task requires a weighted graph!")
@@ -232,6 +230,8 @@ def task9(gr):  # TODO: consider negative cycles
     d = {v: {} for v in verts}
     nxt = {v: {} for v in verts}
     for v in verts:
+        d[v][v] = 0
+        nxt[v][v] = v
         adj = gr.get_adjacent(v)
         for u in adj:
             try:
@@ -241,10 +241,8 @@ def task9(gr):  # TODO: consider negative cycles
                                       "non-numeric edge mark!"))
             nxt[v][u] = u
         for u in verts - adj.keys():
-            d[v][u] = INF
+            d[v][u] = math.inf
             nxt[v][u] = None
-        d[v][v] = 0
-        nxt[v][v] = v
 
     for x in verts:
         for y in verts:
@@ -260,10 +258,20 @@ def task9(gr):  # TODO: consider negative cycles
                 continue
             nodes = []
             c = v
-            while c != u:
-                nodes.append(c)
-                c = nxt[c][u]
-            nodes.append(u)
-            ways[v][u] = " ".join(nodes)
+            fail = False
+            if d[c][c] < 0:
+                fail = True
+            else:
+                while c != u:
+                    nodes.append(c)
+                    c = nxt[c][u]
+                    if d[c][c] < 0:
+                        fail = True
+                        break
+            if not fail:
+                nodes.append(u)
+                ways[v][u] = " ".join(nodes)
+            else:
+                ways[v][u] = "<negative cycle>"
 
     return ways
