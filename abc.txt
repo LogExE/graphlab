@@ -1,5 +1,4 @@
 not_directed weighted
-
 a b 1
 a c 2
 b c 1

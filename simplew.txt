@@ -1,5 +1,4 @@
 weighted not_directed
-
 1 2 9
 1 4 2
 1 6 9

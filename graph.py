@@ -13,8 +13,7 @@ class GraphOperationException(GraphException):
 
 class Graph():
     def __set_attribs(self, attribs):
-        if len(self.__attributes) != 0:
-            raise GraphException("Tried to override attributes!")
+        self.__attributes = {}
         for atr in attribs:
             if atr in ("weighted", "not_weighted") and \
                "weighted" in self.__attributes or \
@@ -34,28 +33,27 @@ class Graph():
                 raise GraphException(("One of atttributes "
                                       "wasn't unrecognized: " + atr))
 
-    def load(self, name):
-        with open(name) as f:
-            self.__set_attribs(f.readline().split())
-            for i, line in enumerate(f, 2):
-                a = line.split()
-                if len(a) == 0:
-                    continue
-                if len(a) == 1:
-                    self.add_vertex(a[0])
-                elif len(a) in [2, 3]:
-                    self.add_edge(*a)
-                else:
-                    raise GraphException(("Format of line "
-                                          f"{i} is incorrect!"))
+    def __load(self, file):
+        self.__set_attribs(file.readline().split())
+        for i, line in enumerate(file, 2):
+            a = line.split()
+            if len(a) == 0:
+                continue
+            if len(a) == 1:
+                self.add_vertex(a[0])
+            elif len(a) in [2, 3]:
+                self.add_edge(*a)
+            else:
+                raise GraphException(("Format of line "
+                                      f"{i} is incorrect!"))
 
     def __init__(self, arg=None):
         self.__vertices = {}
-        self.__attributes = {}
         if arg is None:
             self.__set_attribs(("directed", "weighted"))
         elif isinstance(arg, str):
-            self.load(arg)
+            with open(arg) as f:
+                self.__load(f)
         elif isinstance(arg, Graph):
             self.__attributes = copy.deepcopy(arg.__attributes)
             self.__vertices = copy.deepcopy(arg.__vertices)
@@ -66,6 +64,12 @@ class Graph():
                                   "nothing (None), path to file "
                                   ", another graph or "
                                   "iterable with attributes!"))
+
+    @staticmethod
+    def load_from_file(file):
+        gr = Graph()
+        gr.__load(file)
+        return gr
 
     def is_weighted(self):
         return self.__attributes["weighted"]
@@ -152,5 +156,6 @@ class Graph():
                 appended.add((v, u))
         with open(path, 'w') as f:
             f.write(" ".join(self.__list_attributes()) + "\n")
-            f.write("\n".join(isolated) + "\n")
+            if len(isolated) > 0:
+                f.write("\n".join(isolated) + "\n")
             f.write("\n".join(buff) + "\n")

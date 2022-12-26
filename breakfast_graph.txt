@@ -1,5 +1,4 @@
 directed weighted
-
 porridge tea 10
 sandwich yoghurt 7
 yoghurt tea 3

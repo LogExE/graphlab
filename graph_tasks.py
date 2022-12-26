@@ -87,12 +87,18 @@ def task5(gr, u, v):  # TODO: solve this one
 
     q = [u, v]
     used = {u, v}
+    lens_u = {u: 0}
+    lens_v = {v: 0}
+    active = set()
     while len(q) > 0:
         el = q.pop(0)
+        active.add(el)
         for nei in gr.get_adjacent(el):
             if nei not in used:
                 q.append(nei)
                 used.add(nei)
+            elif nei in active:
+                pass
 
     return used
 
