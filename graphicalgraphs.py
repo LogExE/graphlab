@@ -73,7 +73,8 @@ class GraphApp():
         self.graphs_var = tk.StringVar(self.root)
         self.graphs_var.trace("w", self.change_cur_graph)
         self.graphs_var.set(GraphApp.DEFAULT_GRAPH)
-        self.graph_menu = ttk.OptionMenu(self.frm, self.graphs_var, GraphApp.DEFAULT_GRAPH,
+        self.graph_menu = ttk.OptionMenu(self.frm, self.graphs_var,
+                                         GraphApp.DEFAULT_GRAPH,
                                          *self.get_graphs())
         self.graph_menu.grid(column=0, row=0)
         ttk.Button(self.frm, text="Open",
@@ -91,7 +92,7 @@ class GraphApp():
 
     def canv_m1click(self, ev):
         for (vert, (x, y)) in self.cur_dots.items():
-            if (x - ev.x) ** 2 + (y - ev.y) ** 2 <= GraphApp.VERTICE_RADIUS ** 2:
+            if len2(((x - ev.x), (y - ev.y))) <= GraphApp.VERTICE_RADIUS:
                 self.add_edge(vert)
                 break
         else:
@@ -142,9 +143,12 @@ class GraphApp():
         norm_x = 1
         norm_y = - dir_x / dir_y
         norm_x, norm_y = norm2((norm_x, norm_y))
-        self.canv.create_text(x1 + edge_length / 2 * dir_x + 10 * GraphApp.EDGE_WIDTH * norm_x,
-                              y1 + edge_length / 2 * dir_y + 10 * GraphApp.EDGE_WIDTH * norm_y,
-                              text=self.cur_graph.get_weight(vert1, vert2), fill=GraphApp.EDGE_WEIGHT_COLOR)
+        self.canv.create_text(x1 + edge_length / 2 * dir_x
+                              + 10 * GraphApp.EDGE_WIDTH * norm_x,
+                              y1 + edge_length / 2 * dir_y
+                              + 10 * GraphApp.EDGE_WIDTH * norm_y,
+                              text=self.cur_graph.get_weight(vert1, vert2),
+                              fill=GraphApp.EDGE_WEIGHT_COLOR)
 
     def add_edge(self, vert):
         if self.edge_first is None:
