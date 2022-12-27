@@ -23,7 +23,8 @@ def circle_dots(graph):
     verts = graph.get_vertices()
     step = 2 * math.pi / len(verts)
     for vert in verts:
-        dots[vert] = (center_x + radius * math.cos(ang), center_y + radius * math.sin(ang))
+        dots[vert] = (center_x + radius * math.cos(ang),
+                      center_y + radius * math.sin(ang))
         ang += step
 
     return dots
@@ -34,7 +35,7 @@ class GraphApp():
     CANVAS_HEIGHT = 600
     VERTICE_RADIUS = 20
     VERTICE_COLOR = "white"
-    EDGE_WIDTH = 2
+    EDGE_WIDTH = 1
     EDGE_COLOR = "black"
     DEFAULT_GRAPH = "default"
 
@@ -60,7 +61,7 @@ class GraphApp():
         self.graphs_var = tk.StringVar(self.root)
         self.graphs_var.trace("w", self.change_cur_graph)
         self.graphs_var.set(GraphApp.DEFAULT_GRAPH)
-        self.graph_menu = ttk.OptionMenu(self.frm, self.graphs_var,
+        self.graph_menu = ttk.OptionMenu(self.frm, self.graphs_var, GraphApp.DEFAULT_GRAPH,
                                          *self.get_graphs())
         self.graph_menu.grid(column=0, row=0)
         ttk.Button(self.frm, text="Open",
@@ -83,11 +84,11 @@ class GraphApp():
                 break
         else:
             self.add_vertice(ev.x, ev.y)
-        self.redraw_graph()
 
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
         self.cur_dots = self.dots[self.graphs_var.get()]
+        self.redraw_graph()
 
     def get_graphs(self):
         return self.graphs.keys()
@@ -118,10 +119,19 @@ class GraphApp():
         norm_x = math.cos(ang)
         norm_y = math.sin(ang)
         length = (norm_x ** 2 + norm_y ** 2) ** 0.5
-        norm_x *= GraphApp.VERTICE_RADIUS / length
-        norm_y *= GraphApp.VERTICE_RADIUS / length
+        norm_x /= length
+        norm_y /= length
         self.canv.create_line(
-            x1 + norm_x, y1 + norm_y, x2 - norm_x, y2 - norm_y, width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR, arrow=tk.LAST if self.cur_graph.is_directed() else None)
+            x1 + GraphApp.VERTICE_RADIUS * norm_x,
+            y1 + GraphApp.VERTICE_RADIUS * norm_y,
+            x2 - GraphApp.VERTICE_RADIUS * norm_x,
+            y2 - GraphApp.VERTICE_RADIUS * norm_y,
+            width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR,
+            arrow=tk.LAST if self.cur_graph.is_directed() else None)
+        edge_length = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+        self.canv.create_text(x1 + edge_length / 2 * norm_x,
+                              y1 + edge_length / 2 * norm_y,
+                              text=self.cur_graph.get_weight(vert1, vert2))
 
     def add_edge(self, vert):
         if self.edge_first is None:
@@ -134,6 +144,7 @@ class GraphApp():
             try:
                 self.cur_graph.add_edge(self.edge_first, vert, weight)
                 self.edge_first = None
+                self.redraw_graph()
             except GraphOperationException as e:
                 messagebox.showerror(title="Error!", message=e)
 
@@ -145,6 +156,7 @@ class GraphApp():
         try:
             self.cur_graph.add_vertex(ans)
             self.cur_dots[ans] = (x, y)
+            self.redraw_graph()
         except GraphOperationException as e:
             messagebox.showerror(title="Error!", message=e)
 
