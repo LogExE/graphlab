@@ -147,23 +147,28 @@ class GraphApp():
                               + 10 * GraphApp.EDGE_WIDTH * norm_x,
                               y1 + edge_length / 2 * dir_y
                               + 10 * GraphApp.EDGE_WIDTH * norm_y,
-                              text=self.cur_graph.get_weight(vert1, vert2),
+                              text=self.cur_graph.get_edge_attr(vert1, vert2),
                               fill=GraphApp.EDGE_WEIGHT_COLOR)
 
     def add_edge(self, vert):
         if self.edge_first is None:
             self.edge_first = vert
+            self.lbl.config(text="Connecting " + vert)
         else:
-            weight = None
-            if self.cur_graph.is_weighted():
-                weight = simpledialog.askstring(
-                    "Adding edge", "What's the weight of it?")
-            try:
-                self.cur_graph.add_edge(self.edge_first, vert, weight)
+            if vert == self.edge_first:
                 self.edge_first = None
-                self.redraw_graph()
-            except GraphOperationException as e:
-                messagebox.showerror(title="Error!", message=e)
+                self.lbl.config(text="-")
+            else:
+                if self.cur_graph.is_weighted():
+                    attr = simpledialog.askstring(
+                        "Adding edge", "What's the value of it's attribute?")
+                    try:
+                        self.cur_graph.add_edge(self.edge_first, vert, attr)
+                        self.edge_first = None
+                        self.lbl.config(text="-")
+                        self.redraw_graph()
+                    except GraphOperationException as e:
+                        messagebox.showerror(title="Error!", message=e)
 
     def add_vertice(self, x, y):
         ans = simpledialog.askstring(

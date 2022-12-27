@@ -80,7 +80,7 @@ class Graph():
     def exists_edge(self, x, y):
         return x in self.__vertices and y in self.__vertices[x]
 
-    def get_weight(self, v1, v2):
+    def get_edge_attr(self, v1, v2):
         if v1 not in self.__vertices or v2 not in self.__vertices[v1]:
             raise GraphException("No such edge!")
         return self.__vertices[v1][v2]
