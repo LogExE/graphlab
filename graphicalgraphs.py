@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
 import math
+import random
 
 from graph import Graph, GraphOperationException
 
@@ -37,6 +38,16 @@ def circle_dots(graph):
         dots[vert] = (center_x + radius * math.cos(ang),
                       center_y + radius * math.sin(ang))
         ang += step
+
+    return dots
+
+
+def random_dots(graph):
+    dots = {}
+    verts = graph.get_vertices()
+    for vert in verts:
+        dots[vert] = (random.random() * GraphApp.CANVAS_WIDTH,
+                      random.random() * GraphApp.CANVAS_HEIGHT)
 
     return dots
 
