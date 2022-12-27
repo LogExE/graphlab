@@ -150,6 +150,8 @@ class GraphApp():
         norm_x = 1
         norm_y = - dir_x / dir_y
         norm_x, norm_y = norm2((norm_x, norm_y))
+        norm_x *= math.copysign(1, ang)
+        norm_y *= math.copysign(1, ang)
         self.canv.create_text(x1 + edge_length / 2 * dir_x
                               + 10 * GraphApp.EDGE_WIDTH * norm_x,
                               y1 + edge_length / 2 * dir_y
