@@ -67,6 +67,7 @@ class GraphApp():
                               height=GraphApp.CANVAS_HEIGHT, bg='white')
         self.canv.grid(column=0, row=0)
         self.canv.bind("<Button-1>", self.canv_m1click)
+        self.canv.bind("<Button-3>", self.canv_m2click)
         self.frm = ttk.Frame(self.frm_main)
         self.frm.grid(column=1, row=0)
 
@@ -98,6 +99,10 @@ class GraphApp():
         else:
             self.add_vertice(ev.x, ev.y)
 
+    def canv_m2click(self, ev):
+        self.edge_first = None
+        self.lbl.config(text="-")
+
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
         self.cur_dots = self.dots[self.graphs_var.get()]
@@ -126,6 +131,8 @@ class GraphApp():
         self.canv.create_text(x, y, text=vert)
 
     def draw_edge(self, vert1, vert2):
+        if vert1 == vert2:
+            return
         x1, y1 = self.cur_dots[vert1]
         x2, y2 = self.cur_dots[vert2]
         ang = math.atan2(y2 - y1, x2 - x1)
@@ -155,20 +162,17 @@ class GraphApp():
             self.edge_first = vert
             self.lbl.config(text="Connecting " + vert)
         else:
-            if vert == self.edge_first:
+            attr = None
+            if self.cur_graph.is_weighted():
+                attr = simpledialog.askstring(
+                    "Adding edge", "What's the value of it's attribute?")
+            try:
+                self.cur_graph.add_edge(self.edge_first, vert, attr)
                 self.edge_first = None
                 self.lbl.config(text="-")
-            else:
-                if self.cur_graph.is_weighted():
-                    attr = simpledialog.askstring(
-                        "Adding edge", "What's the value of it's attribute?")
-                    try:
-                        self.cur_graph.add_edge(self.edge_first, vert, attr)
-                        self.edge_first = None
-                        self.lbl.config(text="-")
-                        self.redraw_graph()
-                    except GraphOperationException as e:
-                        messagebox.showerror(title="Error!", message=e)
+                self.redraw_graph()
+            except GraphOperationException as e:
+                messagebox.showerror(title="Error!", message=e)
 
     def add_vertice(self, x, y):
         ans = simpledialog.askstring(
