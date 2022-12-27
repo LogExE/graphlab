@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
+import math
 
 from graph import Graph, GraphOperationException
 
@@ -11,10 +12,29 @@ def circle(x, y, r, canv, **args):
     canv.create_oval(x - r, y - r, x + r, y + r, **args)
 
 
+def circle_dots(graph):
+    radius = min(GraphApp.CANVAS_WIDTH / 2,
+                 GraphApp.CANVAS_HEIGHT / 2) - 2 * GraphApp.VERTICE_RADIUS
+    center_x = GraphApp.CANVAS_WIDTH / 2
+    center_y = GraphApp.CANVAS_HEIGHT / 2
+
+    dots = {}
+    ang = 0
+    verts = graph.get_vertices()
+    step = 2 * math.pi / len(verts)
+    for vert in verts:
+        dots[vert] = (center_x + radius * math.cos(ang), center_y + radius * math.sin(ang))
+        ang += step
+
+    return dots
+
+
 class GraphApp():
+    CANVAS_WIDTH = 800
+    CANVAS_HEIGHT = 600
     VERTICE_RADIUS = 20
     VERTICE_COLOR = "white"
-    EDGE_WIDTH = 5
+    EDGE_WIDTH = 2
     EDGE_COLOR = "black"
     DEFAULT_GRAPH = "default"
 
@@ -30,7 +50,8 @@ class GraphApp():
 
         self.frm_main = ttk.Frame(self.root, padding=10)
         self.frm_main.grid()
-        self.canv = tk.Canvas(self.frm_main, width=800, height=600, bg='white')
+        self.canv = tk.Canvas(self.frm_main, width=GraphApp.CANVAS_WIDTH,
+                              height=GraphApp.CANVAS_HEIGHT, bg='white')
         self.canv.grid(column=0, row=0)
         self.canv.bind("<Button-1>", self.canv_m1click)
         self.frm = ttk.Frame(self.frm_main)
@@ -52,7 +73,8 @@ class GraphApp():
 
     def open_click(self):
         with filedialog.askopenfile() as f:
-            self.add_graph(f.name, Graph.load_from_file(f))
+            loaded_graph = Graph.load_from_file(f)
+            self.add_graph(f.name, loaded_graph, circle_dots(loaded_graph))
 
     def canv_m1click(self, ev):
         for (vert, (x, y)) in self.cur_dots.items():
@@ -70,9 +92,11 @@ class GraphApp():
     def get_graphs(self):
         return self.graphs.keys()
 
-    def add_graph(self, name, graph):
+    def add_graph(self, name, graph, dots):
         self.graphs[name] = graph
-        print(*self.graph_menu["menu"])
+        self.dots[name] = dots
+        self.graph_menu["menu"].add_command(
+            label=name, command=tk._setit(self.graphs_var, name))
 
     def redraw_graph(self):
         self.canv.delete("all")
@@ -90,8 +114,14 @@ class GraphApp():
     def draw_edge(self, vert1, vert2):
         x1, y1 = self.cur_dots[vert1]
         x2, y2 = self.cur_dots[vert2]
+        ang = math.atan2(y2 - y1, x2 - x1)
+        norm_x = math.cos(ang)
+        norm_y = math.sin(ang)
+        length = (norm_x ** 2 + norm_y ** 2) ** 0.5
+        norm_x *= GraphApp.VERTICE_RADIUS / length
+        norm_y *= GraphApp.VERTICE_RADIUS / length
         self.canv.create_line(
-            x1, y1, x2, y2, width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR)
+            x1 + norm_x, y1 + norm_y, x2 - norm_x, y2 - norm_y, width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR, arrow=tk.LAST if self.cur_graph.is_directed() else None)
 
     def add_edge(self, vert):
         if self.edge_first is None:
