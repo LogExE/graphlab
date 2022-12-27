@@ -12,6 +12,17 @@ def circle(x, y, r, canv, **args):
     canv.create_oval(x - r, y - r, x + r, y + r, **args)
 
 
+def norm2(vec):
+    x, y = vec
+    length = len2(vec)
+    return (x / length, y / length)
+
+
+def len2(vec):
+    x, y = vec
+    return (x ** 2 + y ** 2) ** 0.5
+
+
 def circle_dots(graph):
     radius = min(GraphApp.CANVAS_WIDTH / 2,
                  GraphApp.CANVAS_HEIGHT / 2) - 2 * GraphApp.VERTICE_RADIUS
@@ -36,7 +47,8 @@ class GraphApp():
     VERTICE_RADIUS = 20
     VERTICE_COLOR = "white"
     EDGE_WIDTH = 1
-    EDGE_COLOR = "black"
+    EDGE_COLOR = "green"
+    EDGE_WEIGHT_COLOR = "blue"
     DEFAULT_GRAPH = "default"
 
     def __init__(self):
@@ -116,22 +128,23 @@ class GraphApp():
         x1, y1 = self.cur_dots[vert1]
         x2, y2 = self.cur_dots[vert2]
         ang = math.atan2(y2 - y1, x2 - x1)
-        norm_x = math.cos(ang)
-        norm_y = math.sin(ang)
-        length = (norm_x ** 2 + norm_y ** 2) ** 0.5
-        norm_x /= length
-        norm_y /= length
+        dir_x = math.cos(ang)
+        dir_y = math.sin(ang)
+        dir_x, dir_y = norm2((dir_x, dir_y))
         self.canv.create_line(
-            x1 + GraphApp.VERTICE_RADIUS * norm_x,
-            y1 + GraphApp.VERTICE_RADIUS * norm_y,
-            x2 - GraphApp.VERTICE_RADIUS * norm_x,
-            y2 - GraphApp.VERTICE_RADIUS * norm_y,
+            x1 + GraphApp.VERTICE_RADIUS * dir_x,
+            y1 + GraphApp.VERTICE_RADIUS * dir_y,
+            x2 - GraphApp.VERTICE_RADIUS * dir_x,
+            y2 - GraphApp.VERTICE_RADIUS * dir_y,
             width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR,
             arrow=tk.LAST if self.cur_graph.is_directed() else None)
-        edge_length = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
-        self.canv.create_text(x1 + edge_length / 2 * norm_x,
-                              y1 + edge_length / 2 * norm_y,
-                              text=self.cur_graph.get_weight(vert1, vert2))
+        edge_length = len2((x1 - x2, y1 - y2))
+        norm_x = 1
+        norm_y = - dir_x / dir_y
+        norm_x, norm_y = norm2((norm_x, norm_y))
+        self.canv.create_text(x1 + edge_length / 2 * dir_x + 10 * GraphApp.EDGE_WIDTH * norm_x,
+                              y1 + edge_length / 2 * dir_y + 10 * GraphApp.EDGE_WIDTH * norm_y,
+                              text=self.cur_graph.get_weight(vert1, vert2), fill=GraphApp.EDGE_WEIGHT_COLOR)
 
     def add_edge(self, vert):
         if self.edge_first is None:
