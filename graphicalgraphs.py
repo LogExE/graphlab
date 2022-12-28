@@ -132,9 +132,13 @@ class GraphApp():
 
     def redraw_graph(self):
         self.canv.delete("all")
+        drawn_edges = set()
         for vert in self.cur_graph.get_vertices():
             for nei in self.cur_graph.get_adjacent(vert):
-                self.draw_edge(vert, nei)
+                if self.cur_graph.is_directed() \
+                        or (nei, vert) not in drawn_edges:
+                    self.draw_edge(vert, nei)
+                    drawn_edges.add((vert, nei))
             self.draw_vertice(vert)
 
     def draw_vertice(self, vert):
