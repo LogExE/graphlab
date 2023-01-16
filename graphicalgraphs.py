@@ -65,8 +65,8 @@ class GraphApp():
     def __init__(self):
         self.graphs = {GraphApp.DEFAULT_GRAPH: Graph()}
         self.dots = {GraphApp.DEFAULT_GRAPH: {}}
-        self.cur_graph = None
-        self.cur_dots = None
+        self.actions = {GraphApp.DEFAULT_GRAPH: []}
+        self.cur_graph = self.cur_dots = self.cur_actions = None
         self.edge_first = None
 
         self.root = tk.Tk()
@@ -82,17 +82,23 @@ class GraphApp():
         self.frm = ttk.Frame(self.frm_main)
         self.frm.grid(column=1, row=0)
 
+        self.status_lbl = ttk.Label(self.frm, text="-")
+        self.status_lbl.grid(column=0, row=0)
+        self.graph_lbl = ttk.Label(self.frm, text="graph label")
+        self.graph_lbl.grid(column=0, row=1)
         self.graphs_var = tk.StringVar(self.root)
         self.graphs_var.trace("w", self.change_cur_graph)
         self.graphs_var.set(GraphApp.DEFAULT_GRAPH)
         self.graph_menu = ttk.OptionMenu(self.frm, self.graphs_var,
                                          GraphApp.DEFAULT_GRAPH,
                                          *self.get_graphs())
-        self.graph_menu.grid(column=0, row=0)
+        self.graph_menu.grid(column=0, row=2)
         ttk.Button(self.frm, text="Open",
-                   command=self.open_click).grid(column=0, row=1)
-        self.lbl = ttk.Label(self.frm, text="-")
-        self.lbl.grid(column=0, row=2)
+                   command=self.open_click).grid(column=0, row=3)
+        ttk.Button(self.frm, text="Create vertice",
+                   command=lambda: 42).grid(column=0, row=4)
+        ttk.Button(self.frm, text="Create edge",
+                   command=lambda: 42).grid(column=0, row=5)
 
     def run(self):
         self.root.mainloop()
@@ -112,7 +118,7 @@ class GraphApp():
 
     def canv_m2click(self, ev):
         self.edge_first = None
-        self.lbl.config(text="-")
+        self.status_lbl.config(text="-")
 
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
@@ -177,7 +183,7 @@ class GraphApp():
     def add_edge(self, vert):
         if self.edge_first is None:
             self.edge_first = vert
-            self.lbl.config(text="Connecting " + vert)
+            self.status_lbl.config(text="Connecting " + vert)
         else:
             attr = None
             if self.cur_graph.is_weighted():
@@ -186,7 +192,7 @@ class GraphApp():
             try:
                 self.cur_graph.add_edge(self.edge_first, vert, attr)
                 self.edge_first = None
-                self.lbl.config(text="-")
+                self.status_lbl.config(text="-")
                 self.redraw_graph()
             except GraphOperationException as e:
                 messagebox.showerror(title="Error!", message=e)
