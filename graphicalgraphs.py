@@ -11,10 +11,12 @@ import random
 from graph import Graph, GraphOperationException
 
 
-def circle(x, y, r, canv, **args):
+# tkinter doesn't know how to draw circles...
+def draw_circle(x, y, r, canv, **args):
     canv.create_oval(x - r, y - r, x + r, y + r, **args)
 
-
+    
+# vector ops
 def norm2(vec):
     x, y = vec
     length = len2(vec)
@@ -26,6 +28,7 @@ def len2(vec):
     return (x ** 2 + y ** 2) ** 0.5
 
 
+# generation functions
 def circle_dots(graph):
     radius = min(GraphApp.CANVAS_WIDTH / 2,
                  GraphApp.CANVAS_HEIGHT / 2) - 2 * GraphApp.VERTICE_RADIUS
@@ -54,6 +57,7 @@ def random_dots(graph):
     return dots
 
 
+# main class
 class GraphApp():
     CANVAS_WIDTH = 800
     CANVAS_HEIGHT = 600
@@ -65,14 +69,23 @@ class GraphApp():
     DEFAULT_GRAPH = "default"
 
     def __init__(self):
+        # here come dicts
+        # containing additional info for each individual graph
         self.graphs = {GraphApp.DEFAULT_GRAPH: Graph()}
+        # vertices coordinates
         self.dots = {GraphApp.DEFAULT_GRAPH: {}}
+        # actions to undo/redo
         self.actions = {GraphApp.DEFAULT_GRAPH: []}
+        
+        self.state = "idle"
+        # for ease of access
         self.cur_graph = self.cur_dots = self.cur_actions = None
-        self.edge_first = None
 
         self.root = tk.Tk()
         self.root.title("Graph viz")
+
+        self.root.bind("<Control-z>", self.undo)
+        self.root.bind("<Control-y>", self.redo)
 
         self.frm_main = ttk.Frame(self.root, padding=10)
         self.frm_main.grid()
@@ -105,6 +118,12 @@ class GraphApp():
     def run(self):
         self.root.mainloop()
 
+    def undo(self, ev):
+        print("Undo!")
+        
+    def redo(self, ev):
+        print("Redo!")
+        
     def open_click(self):
         with filedialog.askopenfile() as f:
             loaded_graph = Graph.load_from_file(f)
@@ -149,7 +168,7 @@ class GraphApp():
 
     def draw_vertice(self, vert):
         x, y = self.cur_dots[vert]
-        circle(x, y, GraphApp.VERTICE_RADIUS,
+        draw_circle(x, y, GraphApp.VERTICE_RADIUS,
                self.canv, fill=GraphApp.VERTICE_COLOR)
         self.canv.create_text(x, y, text=vert)
 
