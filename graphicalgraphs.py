@@ -32,7 +32,7 @@ def len2(vec):
 # generation functions
 def circle_dots(graph):
     radius = min(GraphApp.CANVAS_WIDTH / 2,
-                 GraphApp.CANVAS_HEIGHT / 2) - 2 * GraphApp.VERTICE_RADIUS
+                 GraphApp.CANVAS_HEIGHT / 2) - 2 * GraphApp.VERTEX_RADIUS
     center_x = GraphApp.CANVAS_WIDTH / 2
     center_y = GraphApp.CANVAS_HEIGHT / 2
 
@@ -60,17 +60,17 @@ def random_dots(graph):
 
 class AppState(str, Enum):
     IDLE="Idle"
-    ADD_VERT="Adding vertice"
+    ADD_VERT="Adding vertex"
     ADD_EDGE="Adding edge"
-    REMOVE_VERT="Removing vertice"
+    REMOVE_VERT="Removing vertex"
     REMOVE_EDGE="Removing edge"
 
 # main class
 class GraphApp():
     CANVAS_WIDTH = 800
     CANVAS_HEIGHT = 600
-    VERTICE_RADIUS = 20
-    VERTICE_COLOR = "white"
+    VERTEX_RADIUS = 20
+    VERTEX_COLOR = "white"
     EDGE_WIDTH = 1
     EDGE_COLOR = "green"
     EDGE_WEIGHT_COLOR = "blue"
@@ -100,51 +100,57 @@ class GraphApp():
         self.frm_main = ttk.Frame(self.root, padding=10)
         self.frm_main.grid()
 
-        # button to open new file + graph selection
-        self.subfrm1 = ttk.Frame(self.frm_main)
-        self.subfrm1.grid(column=0, row=0, sticky='w')
-        ttk.Button(self.subfrm1, text="Open",
-                   command=self.open_click).grid(column=0, row=0)
-        self.graphs_var = tk.StringVar(self.root)
-        self.graphs_var.trace("w", self.change_cur_graph)
-        self.graph_menu = ttk.OptionMenu(self.subfrm1, self.graphs_var,
-                                         GraphApp.DEFAULT_GRAPH,
-                                         *self.get_graphs())
-        self.graph_menu.grid(column=1, row=0)
-
         # canvas where we will draw graphs
         self.canv = tk.Canvas(self.frm_main, width=GraphApp.CANVAS_WIDTH,
                               height=GraphApp.CANVAS_HEIGHT, bg='white')
         self.canv.grid(column=0, row=1)
         # mouse actions
         self.canv.bind("<Button-1>", self.canv_m1click)
-        self.canv.bind("<Button-3>", self.canv_m2click)
 
         # various buttons for graph actions + status label
-        self.subfrm2 = ttk.Frame(self.frm_main)
-        self.subfrm2.grid(column=1, row=1)
+        self.subfrm1 = ttk.Frame(self.frm_main)
+        self.subfrm1.grid(column=1, row=1)
         self.status_var = tk.StringVar(self.root)
-        self.status_lbl = ttk.Label(self.subfrm2, textvariable=self.status_var)
+        self.status_lbl = ttk.Label(self.subfrm1, textvariable=self.status_var)
         self.status_lbl.grid()
-        ttk.Button(self.subfrm2, text="Create vertice",
-                   command=self.start_adding_vertice).grid()
-        ttk.Button(self.subfrm2, text="Create edge",
+        ttk.Button(self.subfrm1, text="Create vertex",
+                   command=self.start_adding_vertex).grid()
+        ttk.Button(self.subfrm1, text="Create edge",
                    command=self.start_adding_edge).grid()
-        ttk.Button(self.subfrm2, text="Remove vertice",
-                   command=self.start_removing_vertice).grid()
-        ttk.Button(self.subfrm2, text="Remove edge",
+        ttk.Button(self.subfrm1, text="Remove vertex",
+                   command=self.start_removing_vertex).grid()
+        ttk.Button(self.subfrm1, text="Remove edge",
                    command=self.start_removing_edge).grid()
+
+        # button to open new file + graph selection
+        self.subfrm2 = ttk.Frame(self.frm_main)
+        self.subfrm2.grid(column=0, row=0, sticky='w')
+        ttk.Button(self.subfrm2, text="Open",
+                   command=self.open_click).grid(column=0, row=0)
+        self.graphs_var = tk.StringVar(self.root)
+        self.graphs_var.trace("w", self.change_cur_graph)
+        self.graph_menu = ttk.OptionMenu(self.subfrm2, self.graphs_var,
+                                         GraphApp.DEFAULT_GRAPH,
+                                         *self.get_graphs())
+        self.graph_menu.grid(column=1, row=0)
+
 
     def run(self):
         self.root.mainloop()
 
+    def clear_state(self):
+        self.state = {}
+        self.status_var.set(AppState.IDLE)
+        
     def change_state(self, new_state):
         for k in new_state:
+            if k == "msg":
+                continue
             self.state[k] = new_state[k]
-        if 'msg' in new_state and hasattr(self, 'status_var'):
+        if 'msg' in new_state:
             self.status_var.set(new_state['msg'])
         
-    def start_adding_vertice(self):
+    def start_adding_vertex(self):
         self.change_state({
             "msg": AppState.ADD_VERT,    
         })
@@ -152,10 +158,10 @@ class GraphApp():
     def start_adding_edge(self):
         self.change_state({
             "msg": AppState.ADD_EDGE,
-            "selected_vertice": None
+            "selected_vertex": None
         })
 
-    def start_removing_vertice(self):
+    def start_removing_vertex(self):
         self.change_state({
             "msg": AppState.REMOVE_VERT
         })
@@ -176,42 +182,39 @@ class GraphApp():
             loaded_graph = Graph.load_from_file(f)
             self.add_graph(f.name, loaded_graph, circle_dots(loaded_graph))
 
-    def try_vertice(self, px, py):
+    def try_vertex(self, px, py):
         for (vert, (x, y)) in self.cur_dots.items():
-            if len2((x - px, y - py)) <= GraphApp.VERTICE_RADIUS:
+            if len2((x - px, y - py)) <= GraphApp.VERTEX_RADIUS:
                 return vert
         return None
     
     def canv_m1click(self, ev):
-        if self.status_var.get() == AppState.ADD_EDGE:
-            vert = self.try_vertice(ev.x, ev.y)
+        status = self.status_var.get()
+        if status == AppState.ADD_EDGE:
+            vert = self.try_vertex(ev.x, ev.y)
             if vert is not None:
-                if self.state["selected_vertice"] is None:
+                if self.state["selected_vertex"] is None:
                     self.change_state({
-                        "selected_vertice": vert
+                        "selected_vertex": vert
                     })
                 else:
-                    self.add_edge(self.state["selected_vertice"], vert)
-                    self.change_state({
-                        "msg": AppState.IDLE
-                    })
-        elif self.status_var.get() == AppState.ADD_VERT:
-            self.add_vertice(ev.x, ev.y)
-            self.change_state({
-                "msg": AppState.IDLE
-            })
-
-    def canv_m2click(self, ev):
-        self.edge_first = None
-        self.status_lbl.config(text="-")
+                    self.add_edge(self.state["selected_vertex"], vert)
+                    self.clear_state()
+        elif status == AppState.ADD_VERT:
+            self.add_vertex(ev.x, ev.y)
+            self.clear_state()
+        elif status == AppState.REMOVE_VERT:
+            vert = self.try_vertex(ev.x, ev.y)
+            if vert is not None:
+                self.remove_vertex(vert)
+                self.clear_state()
+        elif status == AppState.REMOVE_EDGE:
+            pass
 
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
         self.cur_dots = self.dots[self.graphs_var.get()]
-        self.selected_vertice = None
-        self.change_state({
-            "msg": AppState.IDLE
-        })
+        self.clear_state()
         self.redraw_graph()
 
     def get_graphs(self):
@@ -224,8 +227,6 @@ class GraphApp():
             label=name, command=tk._setit(self.graphs_var, name))
 
     def redraw_graph(self):
-        if not hasattr(self, 'canv'):
-            return
         self.canv.delete("all")
         drawn_edges = set()
         for vert in self.cur_graph.get_vertices():
@@ -234,12 +235,12 @@ class GraphApp():
                         or (nei, vert) not in drawn_edges:
                     self.draw_edge(vert, nei)
                     drawn_edges.add((vert, nei))
-            self.draw_vertice(vert)
+            self.draw_vertex(vert)
 
-    def draw_vertice(self, vert):
+    def draw_vertex(self, vert):
         x, y = self.cur_dots[vert]
-        draw_circle(x, y, GraphApp.VERTICE_RADIUS,
-               self.canv, fill=GraphApp.VERTICE_COLOR)
+        draw_circle(x, y, GraphApp.VERTEX_RADIUS,
+               self.canv, fill=GraphApp.VERTEX_COLOR)
         self.canv.create_text(x, y, text=vert)
 
     def draw_edge(self, vert1, vert2):
@@ -252,10 +253,10 @@ class GraphApp():
         dir_y = math.sin(ang)
         dir_x, dir_y = norm2((dir_x, dir_y))
         self.canv.create_line(
-            x1 + GraphApp.VERTICE_RADIUS * dir_x,
-            y1 + GraphApp.VERTICE_RADIUS * dir_y,
-            x2 - GraphApp.VERTICE_RADIUS * dir_x,
-            y2 - GraphApp.VERTICE_RADIUS * dir_y,
+            x1 + GraphApp.VERTEX_RADIUS * dir_x,
+            y1 + GraphApp.VERTEX_RADIUS * dir_y,
+            x2 - GraphApp.VERTEX_RADIUS * dir_x,
+            y2 - GraphApp.VERTEX_RADIUS * dir_y,
             width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR,
             arrow=tk.LAST if self.cur_graph.is_directed() else None)
         edge_length = len2((x1 - x2, y1 - y2))
@@ -278,14 +279,13 @@ class GraphApp():
                 "Adding edge", "What's the value of it's attribute?")
         try:
             self.cur_graph.add_edge(vert1, vert2, attr)
-            self.selected_vertice = None
             self.redraw_graph()
         except GraphOperationException as e:
             messagebox.showerror(title="Error!", message=e)
 
-    def add_vertice(self, x, y):
+    def add_vertex(self, x, y):
         ans = simpledialog.askstring(
-            "Adding vertice", "What's the name of it?")
+            "Adding vertex", "What's the name of it?")
         if ans is None:
             return
         try:
@@ -295,6 +295,22 @@ class GraphApp():
         except GraphOperationException as e:
             messagebox.showerror(title="Error!", message=e)
 
+    def remove_vertex(self, vert):
+        try:
+            self.cur_graph.remove_vertex(vert)
+            del self.cur_dots[vert]
+            self.redraw_graph()
+        except GraphOperationException as e:
+            messagebox.showerror(title="Error!", message=e)
+
+    def remove_edge(self, vert1, vert2):
+        try:
+            self.cur_graph.remove_edge(vert1, vert2)
+            self.redraw_graph()
+        except GraphOperationException as e:
+            messagebox.showerror(title="Error!", message=e)
+
+    
 
 # that's easy, right?
 GraphApp().run()
