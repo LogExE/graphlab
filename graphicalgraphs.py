@@ -193,7 +193,7 @@ class GraphApp():
         if status == AppState.ADD_EDGE:
             vert = self.try_vertex(ev.x, ev.y)
             if vert is not None:
-                if self.state["selected_vertex"] is None:
+                if "selected_vertex" not in self.state:
                     self.change_state({
                         "selected_vertex": vert
                     })
@@ -209,7 +209,15 @@ class GraphApp():
                 self.remove_vertex(vert)
                 self.clear_state()
         elif status == AppState.REMOVE_EDGE:
-            pass
+            vert = self.try_vertex(ev.x, ev.y)
+            if vert is not None:
+                if "selected_vertex" not in self.state:
+                    self.change_state({
+                        "selected_vertex": vert
+                    })
+                else:
+                    self.remove_edge(self.state["selected_vertex"], vert)
+                    self.clear_state()
 
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
