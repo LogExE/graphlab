@@ -59,6 +59,7 @@ def random_dots(graph):
     return dots
 
 
+# mega-sketchy state class
 class AppState(str, Enum):
     IDLE="Idle"
     ADD_VERT="Adding vertex"
@@ -84,17 +85,19 @@ class GraphApp():
         self.graphs = {}
         # vertices coordinates
         self.dots = {}
-        # actions to undo/redo
+        # TODO: actions to undo/redo
         self.actions = {}
 
+        # will contatin useful stuff for current state
         self.state = {}
         # for easy access to current graph info later on
+        # will be updated when another graph is selected
         self.cur_graph = self.cur_dots = self.cur_actions = None
 
         self.root = tk.Tk()
         self.root.title("Graph viz")
 
-        # undo, redo actions
+        # TODO: undo, redo actions
         self.root.bind("<Control-z>", self.undo)
         self.root.bind("<Control-y>", self.redo)
 
@@ -140,6 +143,8 @@ class GraphApp():
                                          *self.get_graphs())
         self.graph_menu.grid(column=3, row=0)
 
+        self.root.bind("<Escape>", lambda ev: self.clear_state())
+
 
     def run(self):
         self.root.mainloop()
@@ -151,10 +156,9 @@ class GraphApp():
     def change_state(self, new_state):
         for k in new_state:
             if k == "msg":
+                self.status_var.set(new_state['msg'])
                 continue
             self.state[k] = new_state[k]
-        if 'msg' in new_state:
-            self.status_var.set(new_state['msg'])
         
     def start_adding_vertex(self):
         self.change_state({
@@ -228,6 +232,8 @@ class GraphApp():
         return None
     
     def canv_m1click(self, ev):
+        if self.cur_graph is None:
+            return
         status = self.status_var.get()
         if status == AppState.IDLE:
             vert = self.try_vertex(ev.x, ev.y)
