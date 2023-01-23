@@ -9,6 +9,7 @@ import os
 import math
 import random
 from enum import Enum
+from operator import add
 
 from graph import Graph, GraphOperationException
 
@@ -19,15 +20,21 @@ def draw_circle(x, y, r, canv, **args):
 
     
 # vector ops
-def norm2(vec):
-    x, y = vec
-    length = len2(vec)
-    return (x / length, y / length)
+def vec_norm(vec):
+    length = vec_len(vec)
+    return tuple(map(lambda x: x / length, vec))
 
 
-def len2(vec):
-    x, y = vec
-    return (x ** 2 + y ** 2) ** 0.5
+def vec_len(vec):
+    return sum(map(lambda x: x ** 2, vec)) ** 0.5
+
+
+def vec_add(vec1, vec2):
+    return tuple(map(add, vec1, vec2))
+
+
+def vec_zero(vec):
+    return tuple(map(lambda x: max(x, 0), vec))
 
 
 # generation functions
@@ -76,7 +83,7 @@ class GraphApp():
     CANVAS_HEIGHT = 600
     VERTEX_RADIUS = 20
     VERTEX_COLOR = "white"
-    VERTEX_COLOR_SELECTED = "red"
+    VERTEX_SELECTED = (0xFF, 0, 0)
     EDGE_WIDTH = 1
     EDGE_COLOR = "green"
     EDGE_WEIGHT_COLOR = "blue"
@@ -198,13 +205,16 @@ class GraphApp():
                 self.clear_state()
                 self.redraw_graph()
                 return
+            pre_passed = self.state["pre_passed"]
             passed = self.state["passed"]
+
             x = queue.pop(0)
-            passed.add(x)
+            passed[x] = pre_passed[x]
             self.redraw_graph()
             for nei in self.cur_graph.get_adjacent(x):
                 if nei not in passed:
                     queue.append(nei)
+                    pre_passed[nei] = vec_zero(vec_add(passed[x], (0, 0, 20)))
             if len(queue) == 0:
                 messagebox.showinfo(title="BFS", message="Done! Press enter again to clear")
         
@@ -255,7 +265,7 @@ class GraphApp():
 
     def try_vertex(self, px, py):
         for (vert, (x, y)) in self.cur_dots.items():
-            if len2((x - px, y - py)) <= GraphApp.VERTEX_RADIUS:
+            if vec_len((x - px, y - py)) <= GraphApp.VERTEX_RADIUS:
                 return vert
         return None
     
@@ -308,7 +318,8 @@ class GraphApp():
                 self.change_state({
                     "msg": AppState.BFS,
                     "queue": [vert],
-                    "passed": set()
+                    "passed": {},
+                    "pre_passed": {vert: GraphApp.VERTEX_SELECTED}
                 })
                 messagebox.showinfo(title="BFS", message="To proceed to next step, press Enter")
 
@@ -341,8 +352,12 @@ class GraphApp():
     def draw_vertex(self, vert):
         x, y = self.cur_dots[vert]
         selected = self.status_var.get() == AppState.BFS and vert in self.state["passed"]
+        if not selected:
+            color = GraphApp.VERTEX_COLOR
+        else:
+            color = "#{}{}{}".format(*map(lambda comp: hex(comp)[2:].zfill(2), self.state["passed"][vert]))
         draw_circle(x, y, GraphApp.VERTEX_RADIUS,
-                    self.canv, fill=GraphApp.VERTEX_COLOR if not selected else GraphApp.VERTEX_COLOR_SELECTED)
+                    self.canv, fill=color)
         self.canv.create_text(x, y, text=vert)
 
     def draw_edge(self, vert1, vert2):
@@ -353,7 +368,7 @@ class GraphApp():
         ang = math.atan2(y2 - y1, x2 - x1)
         dir_x = math.cos(ang)
         dir_y = math.sin(ang)
-        dir_x, dir_y = norm2((dir_x, dir_y))
+        dir_x, dir_y = vec_norm((dir_x, dir_y))
         if dir_y == 0:
             dir_y = 1e-9
         self.canv.create_line(
@@ -363,10 +378,10 @@ class GraphApp():
             y2 - GraphApp.VERTEX_RADIUS * dir_y,
             width=GraphApp.EDGE_WIDTH, fill=GraphApp.EDGE_COLOR,
             arrow=tk.LAST if self.cur_graph.is_directed() else None)
-        edge_length = len2((x1 - x2, y1 - y2))
+        edge_length = vec_len((x1 - x2, y1 - y2))
         norm_x = 1
         norm_y = - dir_x / dir_y
-        norm_x, norm_y = norm2((norm_x, norm_y))
+        norm_x, norm_y = vec_norm((norm_x, norm_y))
         norm_x *= math.copysign(1, ang)
         norm_y *= math.copysign(1, ang)
         self.canv.create_text(x1 + edge_length / 2 * dir_x
