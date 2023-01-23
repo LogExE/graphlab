@@ -310,6 +310,8 @@ class GraphApp():
         dir_x = math.cos(ang)
         dir_y = math.sin(ang)
         dir_x, dir_y = norm2((dir_x, dir_y))
+        if dir_y == 0:
+            dir_y = 1e-9
         self.canv.create_line(
             x1 + GraphApp.VERTEX_RADIUS * dir_x,
             y1 + GraphApp.VERTEX_RADIUS * dir_y,
