@@ -65,6 +65,7 @@ class AppState(str, Enum):
     ADD_EDGE="Adding edge"
     REMOVE_VERT="Removing vertex"
     REMOVE_EDGE="Removing edge"
+    MOVE_VERT="Moving vertex"
 
 # main class
 class GraphApp():
@@ -209,7 +210,18 @@ class GraphApp():
     
     def canv_m1click(self, ev):
         status = self.status_var.get()
-        if status == AppState.ADD_EDGE:
+        if status == AppState.IDLE:
+            vert = self.try_vertex(ev.x, ev.y)
+            if vert is not None:
+                self.change_state({
+                    "msg": AppState.MOVE_VERT,
+                    "selected_vertex": vert
+                })
+        elif status == AppState.MOVE_VERT:
+            self.cur_dots[self.state["selected_vertex"]] = (ev.x, ev.y)
+            self.clear_state()
+            self.redraw_graph()
+        elif status == AppState.ADD_EDGE:
             vert = self.try_vertex(ev.x, ev.y)
             if vert is not None:
                 if "selected_vertex" not in self.state:
