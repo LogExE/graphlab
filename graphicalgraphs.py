@@ -5,6 +5,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
+import os
 import math
 import random
 from enum import Enum
@@ -125,14 +126,18 @@ class GraphApp():
         # button to open new file + graph selection
         self.subfrm2 = ttk.Frame(self.frm_main)
         self.subfrm2.grid(column=0, row=0, sticky='w')
+        ttk.Button(self.subfrm2, text="New",
+                   command=self.new_click).grid(column=0, row=0)
         ttk.Button(self.subfrm2, text="Open",
-                   command=self.open_click).grid(column=0, row=0)
+                   command=self.open_click).grid(column=1, row=0)
+        ttk.Button(self.subfrm2, text="Save",
+                   command=self.save_click).grid(column=2, row=0)
         self.graphs_var = tk.StringVar(self.root)
         self.graphs_var.trace("w", self.change_cur_graph)
         self.graph_menu = ttk.OptionMenu(self.subfrm2, self.graphs_var,
                                          GraphApp.DEFAULT_GRAPH,
                                          *self.get_graphs())
-        self.graph_menu.grid(column=1, row=0)
+        self.graph_menu.grid(column=3, row=0)
 
 
     def run(self):
@@ -158,7 +163,6 @@ class GraphApp():
     def start_adding_edge(self):
         self.change_state({
             "msg": AppState.ADD_EDGE,
-            "selected_vertex": None
         })
 
     def start_removing_vertex(self):
@@ -176,11 +180,26 @@ class GraphApp():
         
     def redo(self, ev):
         print("Redo!")
+
+    def new_click(self):
+        name, *attrs = simpledialog.askstring(
+                "Adding graph", "Please enter in the format:\nName attr1 attr2").split()
+        self.add_graph(name, Graph(attrs), {})
         
     def open_click(self):
         with filedialog.askopenfile() as f:
             loaded_graph = Graph.load_from_file(f)
-            self.add_graph(f.name, loaded_graph, circle_dots(loaded_graph))
+            self.add_graph(os.path.splitext(os.path.basename(f.name))[0], loaded_graph, circle_dots(loaded_graph))
+
+    def save_click(self):
+        name = self.graphs_var.get()
+        self.cur_graph.save(name + ".txt")
+        self.save_positions()
+
+    def save_positions(self):
+        with open(self.graphs_var.get() + ".pos", "w") as f:
+            for name, (x, y) in self.cur_dots.items():
+                f.write(f"{name} {x} {y}\n")
 
     def try_vertex(self, px, py):
         for (vert, (x, y)) in self.cur_dots.items():
