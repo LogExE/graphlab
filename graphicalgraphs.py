@@ -81,11 +81,11 @@ class GraphApp():
     def __init__(self):
         # here come dicts
         # containing additional info for each individual graph
-        self.graphs = {GraphApp.DEFAULT_GRAPH: Graph()}
+        self.graphs = {}
         # vertices coordinates
-        self.dots = {GraphApp.DEFAULT_GRAPH: {}}
+        self.dots = {}
         # actions to undo/redo
-        self.actions = {GraphApp.DEFAULT_GRAPH: []}
+        self.actions = {}
 
         self.state = {}
         # for easy access to current graph info later on
@@ -136,7 +136,7 @@ class GraphApp():
         self.graphs_var = tk.StringVar(self.root)
         self.graphs_var.trace("w", self.change_cur_graph)
         self.graph_menu = ttk.OptionMenu(self.subfrm2, self.graphs_var,
-                                         GraphApp.DEFAULT_GRAPH,
+                                         None,
                                          *self.get_graphs())
         self.graph_menu.grid(column=3, row=0)
 
@@ -185,6 +185,8 @@ class GraphApp():
     def new_click(self):
         name = simpledialog.askstring(
                 "Adding graph", "Name the new graph")
+        if name is None:
+            return
         directed = messagebox.askyesno(message="Will it be directed?")
         weighted = messagebox.askyesno(message="Will it be weighted?")
         self.add_graph(name, Graph([("not_" if not directed else "") + "directed",
@@ -193,16 +195,29 @@ class GraphApp():
     def open_click(self):
         with filedialog.askopenfile() as f:
             loaded_graph = Graph.load_from_file(f)
-            # TODO: load positions
-            self.add_graph(os.path.splitext(os.path.basename(f.name))[0], loaded_graph, circle_dots(loaded_graph))
+            name, _ = os.path.splitext(f.name)
+            pos = self.load_positions(name + ".pos")
+            if pos is None:
+                pos = circle_dots(loaded_graph)
+            self.add_graph(name, loaded_graph, pos)
 
     def save_click(self):
         name = self.graphs_var.get()
         self.cur_graph.save(name + ".txt")
-        self.save_positions()
+        self.save_positions(name + ".pos")
 
-    def save_positions(self):
-        with open(self.graphs_var.get() + ".pos", "w") as f:
+    def load_positions(self, fname):
+        if not os.path.exists(fname):
+            return None
+        dots = {}
+        with open(fname) as f:
+            for line in f:
+                vert, x, y = line.split()
+                dots[vert] = (int(x), int(y))
+        return dots
+        
+    def save_positions(self, fname):
+        with open(fname, "w") as f:
             for name, (x, y) in self.cur_dots.items():
                 f.write(f"{name} {x} {y}\n")
 
