@@ -183,13 +183,17 @@ class GraphApp():
         print("Redo!")
 
     def new_click(self):
-        name, *attrs = simpledialog.askstring(
-                "Adding graph", "Please enter in the format:\nName attr1 attr2").split()
-        self.add_graph(name, Graph(attrs), {})
+        name = simpledialog.askstring(
+                "Adding graph", "Name the new graph")
+        directed = messagebox.askyesno(message="Will it be directed?")
+        weighted = messagebox.askyesno(message="Will it be weighted?")
+        self.add_graph(name, Graph([("not_" if not directed else "") + "directed",
+                                    ("not_" if not weighted else "") + "weighted"]), {})
         
     def open_click(self):
         with filedialog.askopenfile() as f:
             loaded_graph = Graph.load_from_file(f)
+            # TODO: load positions
             self.add_graph(os.path.splitext(os.path.basename(f.name))[0], loaded_graph, circle_dots(loaded_graph))
 
     def save_click(self):
