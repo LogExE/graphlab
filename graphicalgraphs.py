@@ -67,13 +67,16 @@ class AppState(str, Enum):
     REMOVE_VERT="Removing vertex"
     REMOVE_EDGE="Removing edge"
     MOVE_VERT="Moving vertex"
-
+    PRE_BFS="Selecting vertex to BFS"
+    BFS="Running BFS"
+    
 # main class
 class GraphApp():
     CANVAS_WIDTH = 800
     CANVAS_HEIGHT = 600
     VERTEX_RADIUS = 20
     VERTEX_COLOR = "white"
+    VERTEX_COLOR_SELECTED = "red"
     EDGE_WIDTH = 1
     EDGE_COLOR = "green"
     EDGE_WEIGHT_COLOR = "blue"
@@ -126,6 +129,8 @@ class GraphApp():
                    command=self.start_removing_vertex).grid()
         ttk.Button(self.subfrm1, text="Remove edge",
                    command=self.start_removing_edge).grid()
+        ttk.Button(self.subfrm1, text="Run BFS",
+                   command=self.start_bfs).grid()
 
         # button to open new file + graph selection
         self.subfrm2 = ttk.Frame(self.frm_main)
@@ -144,6 +149,7 @@ class GraphApp():
         self.graph_menu.grid(column=3, row=0)
 
         self.root.bind("<Escape>", lambda ev: self.clear_state())
+        self.root.bind("<Return>", self.handle_enter)
 
 
     def run(self):
@@ -179,6 +185,28 @@ class GraphApp():
         self.change_state({
             "msg": AppState.REMOVE_EDGE
         })
+
+    def start_bfs(self):
+        self.change_state({
+            "msg": AppState.PRE_BFS
+        })
+
+    def handle_enter(self, ev):
+        if self.status_var.get() == AppState.BFS:
+            queue = self.state["queue"]
+            if len(queue) == 0:
+                self.clear_state()
+                self.redraw_graph()
+                return
+            passed = self.state["passed"]
+            x = queue.pop(0)
+            passed.add(x)
+            self.redraw_graph()
+            for nei in self.cur_graph.get_adjacent(x):
+                if nei not in passed:
+                    queue.append(nei)
+            if len(queue) == 0:
+                messagebox.showinfo(title="BFS", message="Done! Press enter again to clear")
         
     def undo(self, ev):
         print("Undo!")
@@ -274,6 +302,15 @@ class GraphApp():
                 else:
                     self.remove_edge(self.state["selected_vertex"], vert)
                     self.clear_state()
+        elif status == AppState.PRE_BFS:
+            vert = self.try_vertex(ev.x, ev.y)
+            if vert is not None:
+                self.change_state({
+                    "msg": AppState.BFS,
+                    "queue": [vert],
+                    "passed": set()
+                })
+                messagebox.showinfo(title="BFS", message="To proceed to next step, press Enter")
 
     def change_cur_graph(self, *args):
         self.cur_graph = self.graphs[self.graphs_var.get()]
@@ -303,8 +340,9 @@ class GraphApp():
 
     def draw_vertex(self, vert):
         x, y = self.cur_dots[vert]
+        selected = self.status_var.get() == AppState.BFS and vert in self.state["passed"]
         draw_circle(x, y, GraphApp.VERTEX_RADIUS,
-               self.canv, fill=GraphApp.VERTEX_COLOR)
+                    self.canv, fill=GraphApp.VERTEX_COLOR if not selected else GraphApp.VERTEX_COLOR_SELECTED)
         self.canv.create_text(x, y, text=vert)
 
     def draw_edge(self, vert1, vert2):
